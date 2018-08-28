@@ -3,9 +3,9 @@ package com.fionapet.tenant.service;
 import java.util.Collections;
 import java.util.Optional;
 
-import com.fionapet.tenant.domain.Role;
-import com.fionapet.tenant.domain.User;
-import com.fionapet.tenant.domain.enumeration.RoleName;
+import com.fionapet.tenant.security.entity.Role;
+import com.fionapet.tenant.security.entity.User;
+import com.fionapet.tenant.security.entity.enumeration.RoleName;
 import com.fionapet.tenant.exception.EmailAlreadyExistsException;
 import com.fionapet.tenant.exception.RoleNotExistsException;
 import com.fionapet.tenant.exception.UsernameAlreadyExistsException;

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import com.fionapet.tenant.domain.Tenant;
+import com.fionapet.tenant.security.entity.Tenant;
 import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.cfg.Environment;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;

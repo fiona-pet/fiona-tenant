@@ -1,6 +1,6 @@
 package com.fionapet.tenant.config;
 
-import com.fionapet.tenant.audit.UserAuditorAware;
+import com.fionapet.tenant.security.audit.UserAuditorAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

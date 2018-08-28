@@ -1,12 +1,12 @@
-package com.fionapet.tenant.domain;
+package com.fionapet.tenant.security.entity;
+
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-
-import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @Table(name="roles")

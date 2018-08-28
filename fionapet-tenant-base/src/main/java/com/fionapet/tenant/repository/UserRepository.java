@@ -2,7 +2,7 @@ package com.fionapet.tenant.repository;
 
 import java.util.Optional;
 
-import com.fionapet.tenant.domain.User;
+import com.fionapet.tenant.security.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

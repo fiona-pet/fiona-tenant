@@ -1,4 +1,4 @@
-package com.fionapet.tenant.domain;
+package com.fionapet.tenant.security.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

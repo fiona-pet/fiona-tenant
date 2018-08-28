@@ -8,7 +8,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import com.fionapet.tenant.domain.Demo;
+import com.fionapet.tenant.security.entity.Demo;
 import org.springframework.data.jpa.domain.Specification;
 
 public class DemoSpecification implements Specification<Demo> {

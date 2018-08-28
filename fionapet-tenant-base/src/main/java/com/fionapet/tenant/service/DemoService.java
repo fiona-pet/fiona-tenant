@@ -1,6 +1,6 @@
 package com.fionapet.tenant.service;
 
-import com.fionapet.tenant.domain.Demo;
+import com.fionapet.tenant.security.entity.Demo;
 import com.fionapet.tenant.repository.DemoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

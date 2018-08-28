@@ -2,7 +2,7 @@ package com.fionapet.tenant.web;
 
 import javax.validation.Valid;
 
-import com.fionapet.tenant.domain.User;
+import com.fionapet.tenant.security.entity.User;
 import com.fionapet.tenant.security.JwtTokenProvider;
 import com.fionapet.tenant.service.UserService;
 import com.fionapet.tenant.web.dto.ApiResponse;

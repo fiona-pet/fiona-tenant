@@ -1,12 +1,12 @@
-package com.fionapet.tenant.audit;
+package com.fionapet.tenant.security.audit;
 
-import java.util.Optional;
-
-import com.fionapet.tenant.domain.User;
+import com.fionapet.tenant.security.entity.User;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.Optional;
 
 public class UserAuditorAware implements AuditorAware<Long> {
 	

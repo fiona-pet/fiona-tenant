@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.fionapet.tenant.domain.Role;
+import com.fionapet.tenant.security.entity.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {

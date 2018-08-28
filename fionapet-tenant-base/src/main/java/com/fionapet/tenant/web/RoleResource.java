@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fionapet.tenant.domain.Role;
+import com.fionapet.tenant.security.entity.Role;
 
 @RestController
 @RequestMapping("/api/roles")

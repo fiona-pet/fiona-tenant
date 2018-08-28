@@ -2,7 +2,7 @@ package com.fionapet.tenant.web;
 
 import java.util.Optional;
 
-import com.fionapet.tenant.domain.User;
+import com.fionapet.tenant.security.entity.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

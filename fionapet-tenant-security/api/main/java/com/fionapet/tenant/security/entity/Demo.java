@@ -1,4 +1,7 @@
-package com.fionapet.tenant.domain;
+package com.fionapet.tenant.security.entity;
+
+
+import com.fionapet.tenant.security.audit.AbstractAuditableEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -6,8 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
-
-import com.fionapet.tenant.audit.AbstractAuditableEntity;
 
 @Entity
 public class Demo extends AbstractAuditableEntity {

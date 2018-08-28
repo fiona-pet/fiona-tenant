@@ -2,8 +2,8 @@ package com.fionapet.tenant.web;
 
 import java.util.Optional;
 
-import com.fionapet.tenant.domain.Demo;
-import com.fionapet.tenant.domain.User;
+import com.fionapet.tenant.security.entity.Demo;
+import com.fionapet.tenant.security.entity.User;
 import com.fionapet.tenant.security.CurrentUser;
 import com.fionapet.tenant.service.DemoService;
 import org.slf4j.Logger;

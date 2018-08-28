@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fionapet.tenant.domain.Tenant;
-import com.fionapet.tenant.domain.User;
+import com.fionapet.tenant.security.entity.Tenant;
+import com.fionapet.tenant.security.entity.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import com.fionapet.tenant.domain.Role;
+import com.fionapet.tenant.security.entity.Role;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
