@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import com.fionapet.tenant.security.entity.Tenant;
+import com.fionapet.tenant.entity.Tenant;
 import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.cfg.Environment;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
@@ -20,7 +20,6 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
-import com.fionapet.tenant.FionaTenantApp;
 import com.fionapet.tenant.repository.TenantRepository;
 
 import liquibase.integration.spring.MultiTenantSpringLiquibase;
@@ -49,7 +48,7 @@ public class DatabaseConfig {
 
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dataSource);
-		em.setPackagesToScan(FionaTenantApp.class.getPackage().getName());
+		em.setPackagesToScan("com.fionapet.tenant");
 		em.setJpaVendorAdapter(jpaVendorAdapter());
 		em.setJpaPropertyMap(jpaPropertiesMap);
 		

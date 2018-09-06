@@ -1,10 +1,10 @@
 package com.fionapet.tenant.repository;
 
-import java.util.Optional;
-
-import com.fionapet.tenant.security.entity.Tenant;
+import com.fionapet.tenant.entity.Tenant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public interface TenantRepository extends JpaRepository<Tenant, Long> {
