@@ -21,4 +21,19 @@
             <scope>runtime</scope>
         </dependency>
     </dependencies>
+
+    <!--<build>-->
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<groupId>org.springframework.boot</groupId>-->
+                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--</plugin>-->
+            <!--&lt;!&ndash; lombok插件 &ndash;&gt;-->
+            <!--<plugin>-->
+                <!--<groupId>org.projectlombok</groupId>-->
+                <!--<artifactId>lombok-maven-plugin</artifactId>-->
+                <!--<version>1.12.6.0</version>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
+    <!--</build>-->
 </project>
