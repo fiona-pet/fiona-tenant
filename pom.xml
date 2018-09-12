@@ -124,6 +124,7 @@
     <modules>
         <module>fionapet-tenant-base</module>
         <module>fionapet-tenant-security</module>
+        <module>fionapet-tenant-tc</module>
         <module>fionapet-tenant-demo</module>
     </modules>
 

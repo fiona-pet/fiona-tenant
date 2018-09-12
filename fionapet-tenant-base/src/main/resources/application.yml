@@ -4,7 +4,7 @@ server:
 logging: 
   level:
     root: INFO
-    com.github.elgleidson.multi.tenant.schema: DEBUG
+    com.fionapet.tenant: DEBUG
 
 spring:
   application:
