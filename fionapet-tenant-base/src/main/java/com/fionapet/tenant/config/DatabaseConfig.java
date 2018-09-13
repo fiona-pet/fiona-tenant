@@ -42,9 +42,11 @@ public class DatabaseConfig {
 																		CurrentTenantIdentifierResolver currentTenantIdentifierResolver) {
 		Map<String, Object> jpaPropertiesMap = new HashMap<>();
 		jpaPropertiesMap.putAll(jpaProperties.getProperties());
-		jpaPropertiesMap.put(Environment.MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
+		jpaPropertiesMap.put(Environment.MULTI_TENANT, MultiTenancyStrategy.DATABASE);
 		jpaPropertiesMap.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProvider);
 		jpaPropertiesMap.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, currentTenantIdentifierResolver);
+		jpaPropertiesMap.put("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
+		jpaPropertiesMap.put(Environment.SHOW_SQL, true);
 
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dataSource);
@@ -60,7 +62,6 @@ public class DatabaseConfig {
 		SpringLiquibase liquibase = new SpringLiquibase();
 		liquibase.setDataSource(dataSource);
 		liquibase.setChangeLog("classpath:/db/changelog/db.changelog-core.xml");
-		liquibase.setDefaultSchema("cboard");
 		liquibase.setShouldRun(true);
 		
 		return liquibase;

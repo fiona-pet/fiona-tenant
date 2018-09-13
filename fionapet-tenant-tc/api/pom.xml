@@ -14,6 +14,12 @@
 
 
     <dependencies>
-
+        <!-- api -->
+        <dependency>
+            <groupId>com.fionapet.tenant.security</groupId>
+            <artifactId>fionapet-tenant-security-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- api -->
     </dependencies>
 </project>

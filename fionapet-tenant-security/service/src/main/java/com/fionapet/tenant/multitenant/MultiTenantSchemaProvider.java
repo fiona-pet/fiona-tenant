@@ -41,12 +41,18 @@ public class MultiTenantSchemaProvider implements MultiTenantConnectionProvider 
 	@Override
 	public Connection getConnection(String tenantIdentifier) throws SQLException {
 		Connection connection = getAnyConnection();
-		connection.setSchema(tenantIdentifier);
+
+		connection.createStatement().execute("USE " + tenantIdentifier);
+
+//		connection.setSchema(tenantIdentifier);
+
 		return connection;
 	}
 
 	@Override
 	public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
+		connection.createStatement().execute("USE " + tenantIdentifier);
+
 		releaseAnyConnection(connection); 	 			
 	}
 

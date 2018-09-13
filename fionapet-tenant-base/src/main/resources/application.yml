@@ -20,6 +20,10 @@ spring:
       hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
       # disable jdbc metadata (avoid the exception: PgConnection.createClob() is not yet implemented)
       hibernate.temp.use_jdbc_metadata_defaults: false
+      hibernate.multiTenancy: DATABASE
+      hibernate.tenant_identifier_resolver: com.fionapet.tenant.multitenant.MultiTenantSchemaResolver
+      hibernate.multi_tenant_connection_provider: com.fionapet.tenant.multitenant.MultiTenantSchemaProvider
+      hibernate.ejb.naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
   jackson:
     serialization:
       write-dates-as-timestamps: false

@@ -19,6 +19,18 @@
             <artifactId>fionapet-tenant-tc-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        <!-- api -->
+
+        <dependency>
+            <artifactId>fionapet-tenant-base</artifactId>
+            <groupId>com.fionapet.tenant</groupId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>fionapet-tenant-security-service</artifactId>
+            <groupId>com.fionapet.tenant.security</groupId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
