@@ -33,7 +33,6 @@ public class ExchangeServiceTest {
 
     @Before
     public void before() throws Exception {
-        TenantContextHolder.setCurrentSchema("user1");
     }
 
     @After
