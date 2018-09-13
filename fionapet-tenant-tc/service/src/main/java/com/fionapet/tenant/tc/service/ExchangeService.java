@@ -30,6 +30,6 @@ public class ExchangeService {
     }
 
     public List<Exchange> list(){
-        return repository.;
+        return repository.findAllBy();
     }
 }
