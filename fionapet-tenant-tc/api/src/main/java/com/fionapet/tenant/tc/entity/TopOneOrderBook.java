@@ -26,9 +26,24 @@ public class TopOneOrderBook extends AbstractAuditableEntity {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String description;
+    /**
+     * 市场id
+     */
+    private Long exchangeId;
 
+    /**
+     * 币对
+     */
+    private String currencyPair;
 
+    /**
+     * 买 1
+     */
+    private float bidPrice;
+
+    /**
+     * 卖 1
+     */
+    private float askPrice;
 	
 }
