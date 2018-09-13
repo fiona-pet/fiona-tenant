@@ -7,10 +7,13 @@ import org.junit.After;
 import com.fionapet.tenant.multitenant.TenantContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.runner.RunWith;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.List;
 
 /**
  * XchangeService Tester.
@@ -27,6 +30,8 @@ public class XchangeServiceTest {
     @Autowired
     XchangeService xchangeService;
 
+    String instanceName = "org.knowm.xchange.bitstamp.BitstampExchange";
+
     @Before
     public void before() throws Exception {
     }
@@ -40,13 +45,22 @@ public class XchangeServiceTest {
      */
     @Test
     public void testGetOrderBookByCurrencyPair() throws Exception {
-        String instanceName = "org.knowm.xchange.bitstamp.BitstampExchange";
-        String currencyPairStr = "BTCUSD";
-
-        OrderBook orderBook = xchangeService.getOrderBookByCurrencyPair(instanceName, currencyPairStr);
+        OrderBook orderBook = xchangeService.getOrderBookByCurrencyPair(instanceName,
+                                                                        CurrencyPair.BTC_USD);
 
         Assert.assertNotNull(orderBook);
     }
 
+    /**
+     *
+     * Method: getExchangeSymbols(String instanceName)
+     *
+     */
+    @Test
+    public void testGetExchangeSymbols() throws Exception {
+        List<CurrencyPair> currencyPairList = xchangeService.getExchangeSymbols(instanceName);
+
+        Assert.assertTrue(currencyPairList.size()>0);
+    }
 
 } 
