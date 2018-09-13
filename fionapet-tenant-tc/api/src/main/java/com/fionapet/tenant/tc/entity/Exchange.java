@@ -14,11 +14,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "top_one_order_book")
+@Table(name = "exchange")
 @Getter
 @Setter
 @ToString
-public class TopOneOrderBook extends AbstractAuditableEntity {
+public class Exchange extends AbstractAuditableEntity {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,8 +27,36 @@ public class TopOneOrderBook extends AbstractAuditableEntity {
     private Long id;
 
     @Column
-    private String description;
+    private String name;
 
+    /**
+     * 网址
+     */
+    private String website;
 
-	
+    /**
+     * 位置
+     */
+    private String location;
+
+    /**
+     * 限制ip
+     */
+    private String ip;
+
+    /**
+     * 支持 期货
+     */
+    private boolean future;
+
+    /**
+     * 支持 法币
+     */
+    private String fiat;
+
+    /**
+     * 实例
+     */
+    private String instanceName;
+
 }
