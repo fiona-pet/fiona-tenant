@@ -40,16 +40,7 @@ public class TopOneOrderBookService {
         return demo;
     }
 
-//    public Page<TopOneOrderBook> findAll(Pageable pageable) {
-//        return findAll(null, pageable);
-//    }
-
-//    public Page<TopOneOrderBook> findAll(TopOneOrderBookFilter filter, Pageable pageable) {
-//        log.debug("Finding all TopOneOrderBook by filter {} and page {}...", filter, pageable);
-//        Specification<TopOneOrderBook> specification = TopOneOrderBookSpecification.build(filter);
-//        Page<TopOneOrderBook> page = topOneOrderBookRepository.findAll(specification, pageable);
-//        log.debug("Found all by filter {}!", page);
-//        return page;
-//    }
-
+    public TopOneOrderBook findByExchangeIdAndCurrencyPair(Long exchangeId, String currencyPair) {
+        return topOneOrderBookRepository.findByExchangeIdAndCurrencyPair(exchangeId, currencyPair);
+    }
 }

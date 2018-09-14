@@ -45,12 +45,13 @@ public class DatabaseConfig {
 		jpaPropertiesMap.put(Environment.MULTI_TENANT, MultiTenancyStrategy.DATABASE);
 		jpaPropertiesMap.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProvider);
 		jpaPropertiesMap.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, currentTenantIdentifierResolver);
-		jpaPropertiesMap.put("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
+		jpaPropertiesMap.put(Environment.PHYSICAL_NAMING_STRATEGY, "org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy");
 		jpaPropertiesMap.put(Environment.SHOW_SQL, true);
 
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dataSource);
 		em.setPackagesToScan("com.fionapet.tenant");
+
 		em.setJpaVendorAdapter(jpaVendorAdapter());
 		em.setJpaPropertyMap(jpaPropertiesMap);
 		

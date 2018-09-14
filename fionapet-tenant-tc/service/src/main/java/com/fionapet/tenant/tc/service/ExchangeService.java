@@ -5,6 +5,7 @@ import com.fionapet.tenant.tc.entity.TopOneOrderBook;
 import com.fionapet.tenant.tc.repository.ExchangeRepository;
 import com.fionapet.tenant.tc.repository.TopOneOrderBookRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,4 +33,5 @@ public class ExchangeService {
     public List<Exchange> list(){
         return repository.findAllBy();
     }
+
 }

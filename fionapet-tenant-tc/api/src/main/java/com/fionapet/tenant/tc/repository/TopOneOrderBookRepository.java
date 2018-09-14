@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface TopOneOrderBookRepository
         extends PagingAndSortingRepository<TopOneOrderBook, Long>, JpaSpecificationExecutor<TopOneOrderBook> {
 
+    TopOneOrderBook findByExchangeIdAndCurrencyPair(Long exchangeId, String currencyPair);
 }

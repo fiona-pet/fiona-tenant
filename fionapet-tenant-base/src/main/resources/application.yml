@@ -10,7 +10,7 @@ spring:
   application:
     name: fiona-tenant
   datasource:
-    url: jdbc:mysql://localhost:3306/cboard?characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/core?characterEncoding=UTF-8
     username: root
     password: root
   jpa:
@@ -23,14 +23,13 @@ spring:
       hibernate.multiTenancy: DATABASE
       hibernate.tenant_identifier_resolver: com.fionapet.tenant.multitenant.MultiTenantSchemaResolver
       hibernate.multi_tenant_connection_provider: com.fionapet.tenant.multitenant.MultiTenantSchemaProvider
-      hibernate.ejb.naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
   jackson:
     serialization:
       write-dates-as-timestamps: false
       write-date-timestamps-as-nanoseconds: false
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-core.xml
-    default-schema: cboard
+    default-schema: core
 
 management:
   endpoint:

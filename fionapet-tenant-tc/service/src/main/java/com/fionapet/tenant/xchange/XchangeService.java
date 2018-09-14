@@ -58,5 +58,12 @@ public class XchangeService {
     }
 
 
+    public TopOneOrderBook toTopOneOrderBook(OrderBook orderBook) {
+        TopOneOrderBook topOneOrderBook = new TopOneOrderBook();
 
+        topOneOrderBook.setBidPrice(orderBook.getBids().get(0).getLimitPrice().floatValue());
+        topOneOrderBook.setAskPrice(orderBook.getAsks().get(0).getLimitPrice().floatValue());
+
+        return topOneOrderBook;
+    }
 }

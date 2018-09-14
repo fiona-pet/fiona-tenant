@@ -55,7 +55,7 @@ public class SyncExchangeOrderBook {
                                     xchangeService
                                             .getOrderBook(exchange.getInstanceName(), currencyPair);
                             applicationContext
-                                    .publishEvent(new ExchangeOrderEvent(this, orderBook));
+                                    .publishEvent(new ExchangeOrderEvent(this, orderBook, exchange.getId(),  currencyPair));
                         } catch (IOException e) {
                             log.warn("from {} get order book error!", e);
                         }

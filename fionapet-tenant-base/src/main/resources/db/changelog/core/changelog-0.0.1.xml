@@ -161,7 +161,7 @@
 			<column name="ip" type="varchar(128)"/>
 			<column name="future" type="boolean"/>
 			<column name="fiat" type="varchar(128)"/>
-			<column name="instanceName" type="varchar(128)"/>
+			<column name="instance_name" type="varchar(128)"/>
 
 			<column name="created_date" type="datetime"/>
 			<column name="last_modified_date" type="datetime"/>
