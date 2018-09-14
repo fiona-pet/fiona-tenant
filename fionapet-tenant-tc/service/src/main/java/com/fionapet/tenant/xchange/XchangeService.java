@@ -1,5 +1,6 @@
 package com.fionapet.tenant.xchange;
 
+import com.fionapet.tenant.tc.entity.TopOneOrderBook;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -22,13 +23,28 @@ public class XchangeService {
      *
      * @return
      */
-    public OrderBook getOrderBookByCurrencyPair(String instanceName, CurrencyPair currencyPair)
+    public TopOneOrderBook getOrderBookByCurrencyPair(String instanceName, CurrencyPair currencyPair)
             throws IOException {
+        OrderBook orderBook = getOrderBook(instanceName, currencyPair);
+
+        TopOneOrderBook topOneOrderBook = new TopOneOrderBook();
+
+        topOneOrderBook.setCurrencyPair(currencyPair.toString());
+
+        topOneOrderBook.setBidPrice(orderBook.getBids().get(0).getLimitPrice().floatValue());
+        topOneOrderBook.setAskPrice(orderBook.getAsks().get(0).getLimitPrice().floatValue());
+
+        return topOneOrderBook;
+    }
+
+    public OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair)throws IOException {
         Exchange exchange = ExchangeFactory.INSTANCE.createExchange(instanceName);
 
         MarketDataService marketDataService = exchange.getMarketDataService();
 
-        return marketDataService.getOrderBook(currencyPair);
+        OrderBook orderBook = marketDataService.getOrderBook(currencyPair);
+
+        return orderBook;
     }
 
     /**

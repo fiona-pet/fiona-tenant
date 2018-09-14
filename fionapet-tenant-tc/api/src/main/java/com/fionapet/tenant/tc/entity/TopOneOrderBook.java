@@ -2,6 +2,7 @@ package com.fionapet.tenant.tc.entity;
 
 
 import com.fionapet.tenant.security.audit.AbstractAuditableEntity;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
+@Data
 @Table(name = "top_one_order_book")
 @Getter
 @Setter

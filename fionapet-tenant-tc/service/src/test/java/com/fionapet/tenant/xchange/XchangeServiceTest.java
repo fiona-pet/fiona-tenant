@@ -1,5 +1,6 @@
 package com.fionapet.tenant.xchange;
 
+import com.fionapet.tenant.tc.entity.TopOneOrderBook;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Before;
@@ -45,8 +46,8 @@ public class XchangeServiceTest {
      */
     @Test
     public void testGetOrderBookByCurrencyPair() throws Exception {
-        OrderBook orderBook = xchangeService.getOrderBookByCurrencyPair(instanceName,
-                                                                        CurrencyPair.BTC_USD);
+        TopOneOrderBook orderBook = xchangeService.getOrderBookByCurrencyPair(instanceName,
+                                                                              CurrencyPair.BTC_USD);
 
         Assert.assertNotNull(orderBook);
     }
