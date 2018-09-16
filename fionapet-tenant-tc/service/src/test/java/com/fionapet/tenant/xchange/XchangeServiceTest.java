@@ -1,6 +1,7 @@
 package com.fionapet.tenant.xchange;
 
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
+import com.fionapet.tenant.tc.entity.TrianglePair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Before;
@@ -8,6 +9,7 @@ import org.junit.After;
 import com.fionapet.tenant.multitenant.TenantContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.runner.RunWith;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +64,15 @@ public class XchangeServiceTest {
         List<CurrencyPair> currencyPairList = xchangeService.getExchangeSymbols(instanceName);
 
         Assert.assertTrue(currencyPairList.size()>0);
+    }
+
+    @Test
+    public void testGrenCurrencyPair(){
+        List<CurrencyPair> currencyPairList = xchangeService.getExchangeSymbols(instanceName);
+
+        List<TrianglePair> trianglePairs = xchangeService.grenCurrencyPair(Currency.USD, currencyPairList);
+
+        log.debug("trianglePairs:{}" , trianglePairs);
     }
 
 } 

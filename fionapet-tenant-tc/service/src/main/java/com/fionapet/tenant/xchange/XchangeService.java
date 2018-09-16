@@ -1,8 +1,11 @@
 package com.fionapet.tenant.xchange;
 
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
+import com.fionapet.tenant.tc.entity.TrianglePair;
+import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.service.marketdata.MarketDataService;
@@ -11,9 +14,13 @@ import org.knowm.xchange.utils.jackson.CurrencyPairDeserializer;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class XchangeService {
 
     /**
@@ -55,6 +62,44 @@ public class XchangeService {
     public List<CurrencyPair> getExchangeSymbols(String instanceName){
         Exchange exchange = ExchangeFactory.INSTANCE.createExchange(instanceName);
         return exchange.getExchangeSymbols();
+    }
+
+    /**
+     * 获取 币对组合
+     * @param base
+     * @param currencyPairs
+     * @return
+     */
+    public List<TrianglePair> grenCurrencyPair(final Currency base, List<CurrencyPair> currencyPairs){
+        //找到 所有以 base 为定价币的 币对
+        List<CurrencyPair> hasBase = currencyPairs.stream().filter(new Predicate<CurrencyPair>() {
+            @Override
+            public boolean test(CurrencyPair currencyPair) {
+                return currencyPair.counter == base;
+            }
+        }).collect(Collectors.toList());
+
+        log.debug("hasBase:{}", hasBase);
+
+        List<TrianglePair> trianglePairs = new ArrayList<>();
+
+        for (int i = 0; i < hasBase.size(); i++){
+            for (int j = i+1; j < hasBase.size(); j++) {
+                TrianglePair trianglePair = new TrianglePair();
+
+                CurrencyPair p1 = hasBase.get(i);
+                CurrencyPair p2 = hasBase.get(j);
+                CurrencyPair p3 = new CurrencyPair(p2.base, p1.base);
+
+                trianglePair.setFromBasePair(p1);
+                trianglePair.setToBasePair(p2);
+                trianglePair.setConvertPair(p3);
+
+                trianglePairs.add(trianglePair);
+            }
+        }
+
+        return trianglePairs;
     }
 
 
