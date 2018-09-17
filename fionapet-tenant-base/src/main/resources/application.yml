@@ -1,10 +1,11 @@
 server:
   port: 8090
 
-logging: 
+logging:
   level:
     root: INFO
-    com.fionapet.tenant: DEBUG
+    com.fionapet.tenant: INFO
+  config: classpath:logback-boot.xml
 
 spring:
   application:

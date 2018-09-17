@@ -95,7 +95,15 @@ public class XchangeService {
                 trianglePair.setToBasePair(p2);
                 trianglePair.setConvertPair(p3);
 
+                TrianglePair trianglePair2 = new TrianglePair();
+
+                trianglePair2.setFromBasePair(trianglePair.getToBasePair());
+                trianglePair2.setFromBasePair(trianglePair.getToBasePair());
+                trianglePair2.setToBasePair(trianglePair.getFromBasePair());
+                trianglePair2.setConvertPair(new CurrencyPair(p1.base, p2.base));
+
                 trianglePairs.add(trianglePair);
+                trianglePairs.add(trianglePair2);
             }
         }
 

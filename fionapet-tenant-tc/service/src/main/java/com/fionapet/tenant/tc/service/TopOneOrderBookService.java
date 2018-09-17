@@ -1,6 +1,7 @@
 package com.fionapet.tenant.tc.service;
 
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
+import com.fionapet.tenant.tc.entity.TrianglePair;
 import com.fionapet.tenant.tc.repository.TopOneOrderBookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
