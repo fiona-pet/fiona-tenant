@@ -60,29 +60,20 @@ public class TrianglePair {
 
 		float ltc_btc_sell1_price = convertPairSellPrice;
 
-		log.info("ltc_btc_sell1_price:{}", ltc_btc_sell1_price);
-
 		float p3 = ltc_btc_sell1_price * (1 + ltc_btc_slippage);
 
-		log.info("p3:{}", p3);
 
 		// P1= btc_usd_sell1_price*(1+btc_usd_slippage)
 
 		float btc_usd_sell1_price = fromBasePairSellPrice;
-		log.info("btc_usd_sell1_price:{}", btc_usd_sell1_price);
-
 		float p1 = btc_usd_sell1_price * (1 + btc_usd_slippage);
 
-		log.info("p1:{}", p1);
 
 		// P2 = ltc_usd_buy1_price*(1-ltc_usd_slippage)
 
 		float ltc_usd_buy1_price = toBasePairBuyPrice;
-		log.info("ltc_usd_buy1_price:{}", ltc_usd_buy1_price);
 
 		float p2 = ltc_usd_buy1_price * (1 + ltc_usd_slippage);
-
-		log.info("p2:{}", p2);
 
 		// 在LTC/BTC市场净买入1个LTC，实际上需要买入1/(1-ltc_btc_fee)个LTC，其中的ltc_btc_fee比例部分，是被交易平台收走的手续费。买入1/(1-ltc_btc_fee)个LTC需要花费的BTC数量是
 		float sell_ltc_btc_sub = ltc_btc_sell1_price * (1 + ltc_btc_slippage) / (1 - ltc_btc_fee);
@@ -100,12 +91,11 @@ public class TrianglePair {
 				/ ((1 - ltc_btc_fee) * (1 - btc_usd_fee));
 
 		if (sell_ltc_usd_add > sell_ltc_usd_sub) {
-			log.warn("arbitrage:{}", sell_ltc_usd_add - sell_ltc_usd_sub);
 			arbitrage_fee += (sell_ltc_usd_add - sell_ltc_usd_sub);
 		} else {
-			log.info("not arbitrage:{}", sell_ltc_usd_add - sell_ltc_usd_sub);
+			log.info("p3:convertPair:{}(convertPairSellPrice:{})->p2:fromBasePair:{}(fromBasePairSellPrice:{})->p2:toBasePair:{}(toBasePairBuyPrice:{}), -- not arbitrage:{}",convertPair,  convertPairSellPrice, fromBasePair, fromBasePairSellPrice, toBasePair, toBasePairBuyPrice, sell_ltc_usd_add - sell_ltc_usd_sub);
 		}
 
-		log.info("arbitrage_fee:{}", arbitrage_fee);
+		log.warn("convertPair:{}(convertPairSellPrice:{})->fromBasePair:{}(fromBasePairSellPrice:{})->toBasePair:{}(toBasePairBuyPrice:{}), -- arbitrage:{}",convertPair,  convertPairSellPrice, fromBasePair, fromBasePairSellPrice, toBasePair, toBasePairBuyPrice, arbitrage_fee);
 	}
 }

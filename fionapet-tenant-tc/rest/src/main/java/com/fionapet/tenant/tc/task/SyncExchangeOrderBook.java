@@ -48,27 +48,33 @@ public class SyncExchangeOrderBook {
             @Override
             public void accept(Exchange exchange) {
                 log.info("获取OrderBook:{}...", exchange);
+                try {
+                    List<CurrencyPair>
+                            currencyPairs =
+                            xchangeService.getExchangeSymbols(exchange.getInstanceName());
 
-                List<CurrencyPair>
-                        currencyPairs =
-                        xchangeService.getExchangeSymbols(exchange.getInstanceName());
+                    currencyPairs.stream().forEach(new Consumer<CurrencyPair>() {
+                        @Override
+                        public void accept(CurrencyPair currencyPair) {
+                            try {
+                                OrderBook
+                                        orderBook =
+                                        xchangeService
+                                                .getOrderBook(exchange.getInstanceName(),
+                                                              currencyPair);
+                                applicationContext
+                                        .publishEvent(new ExchangeOrderEvent(this, orderBook,
+                                                                             exchange.getId(),
+                                                                             currencyPair));
+                            } catch (IOException e) {
+                                log.warn("from {} get order book error!", e);
+                            }
 
-                currencyPairs.stream().forEach(new Consumer<CurrencyPair>() {
-                    @Override
-                    public void accept(CurrencyPair currencyPair) {
-                        try {
-                            OrderBook
-                                    orderBook =
-                                    xchangeService
-                                            .getOrderBook(exchange.getInstanceName(), currencyPair);
-                            applicationContext
-                                    .publishEvent(new ExchangeOrderEvent(this, orderBook, exchange.getId(),  currencyPair));
-                        } catch (IOException e) {
-                            log.warn("from {} get order book error!", e);
                         }
-
-                    }
-                });
+                    });
+                }catch (Exception e){
+                    log.warn("exchange:{}", exchange, e);
+                }
 
                 log.info("获取OrderBook");
             }
