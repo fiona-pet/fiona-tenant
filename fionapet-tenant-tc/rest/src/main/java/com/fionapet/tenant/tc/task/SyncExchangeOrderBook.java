@@ -80,45 +80,4 @@ public class SyncExchangeOrderBook {
             }
         });
     }
-
-    @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
-    public void grenCurrencyPair() throws Exception {
-        List<Exchange> exchangeList = exchangeService.list();
-
-        exchangeList.stream().forEach(new Consumer<Exchange>() {
-            @Override
-            public void accept(Exchange exchange) {
-                log.info("获取 三角链 数据准备 :{}...", exchange);
-
-                List<CurrencyPair>
-                        currencyPairs =
-                        xchangeService.getExchangeSymbols(exchange.getInstanceName());
-
-                List<TrianglePair> trianglePairs = xchangeService.grenCurrencyPair(Currency.USD, currencyPairs);
-
-
-                trianglePairs.stream().forEach(new Consumer<TrianglePair>() {
-                    @Override
-                    public void accept(TrianglePair trianglePair) {
-                        TopOneOrderBook topOneOrderBook = topOneOrderBookService.findByExchangeIdAndCurrencyPair(exchange.getId(), trianglePair.getConvertPair().toString());
-
-                        if (null != topOneOrderBook){
-                            trianglePair.setConvertPairSellPrice(topOneOrderBook.getAskPrice());
-
-                            topOneOrderBook = topOneOrderBookService.findByExchangeIdAndCurrencyPair(exchange.getId(), trianglePair.getFromBasePair().toString());
-                            trianglePair.setFromBasePairSellPrice(topOneOrderBook.getAskPrice());
-
-                            topOneOrderBook = topOneOrderBookService.findByExchangeIdAndCurrencyPair(exchange.getId(), trianglePair.getToBasePair().toString());
-                            trianglePair.setToBasePairBuyPrice(topOneOrderBook.getBidPrice());
-
-                            applicationContext
-                                    .publishEvent(new ArbitrageEvent(this, trianglePair));
-                        }
-                    }
-                });
-
-                log.info("获取 三角链 数据准备");
-            }
-        });
-    }
 }
