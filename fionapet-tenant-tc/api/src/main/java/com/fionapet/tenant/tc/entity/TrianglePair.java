@@ -24,15 +24,9 @@ public class TrianglePair {
 	public static final float btc_usd_slippage = 0;
 	public static final float ltc_usd_slippage = 0;
 
-	//    LTC/BTC: ltc_btc_fee
-	//    BTC/USD: btc_usd_fee
-	//    LTC/USD: ltc_usd_fee
 	public static final float ltc_btc_fee = 0.001f;
 	public static final float btc_usd_fee = 0.001f;
 	public static final float ltc_usd_fee = 0.001f;
-
-	public static float arbitrage_fee = 0.0f;
-
 
 	private static final long serialVersionUID = 1L;
 
@@ -51,11 +45,12 @@ public class TrianglePair {
 	 */
 	private CurrencyPair toBasePair;
 
-	float convertPairSellPrice;
-	float fromBasePairSellPrice;
-	float toBasePairBuyPrice;
+	private float convertPairSellPrice;
+	private float fromBasePairSellPrice;
+	private float toBasePairBuyPrice;
 
-	public void arbitrage(){
+	public float arbitrage(){
+		float arbitrage = 0;
 		// P3 = ltc_btc_sell1_price*(1+ltc_btc_slippage)
 
 		float ltc_btc_sell1_price = convertPairSellPrice;
@@ -90,12 +85,10 @@ public class TrianglePair {
 				* (1 + ltc_btc_slippage)
 				/ ((1 - ltc_btc_fee) * (1 - btc_usd_fee));
 
-		if (sell_ltc_usd_add > sell_ltc_usd_sub) {
-			arbitrage_fee += (sell_ltc_usd_add - sell_ltc_usd_sub);
-		} else {
-			log.info("p3:convertPair:{}(convertPairSellPrice:{})->p2:fromBasePair:{}(fromBasePairSellPrice:{})->p2:toBasePair:{}(toBasePairBuyPrice:{}), -- not arbitrage:{}",convertPair,  convertPairSellPrice, fromBasePair, fromBasePairSellPrice, toBasePair, toBasePairBuyPrice, sell_ltc_usd_add - sell_ltc_usd_sub);
-		}
+		arbitrage = sell_ltc_usd_add - sell_ltc_usd_sub ;
 
-		log.warn("convertPair:{}(convertPairSellPrice:{})->fromBasePair:{}(fromBasePairSellPrice:{})->toBasePair:{}(toBasePairBuyPrice:{}), -- arbitrage:{}",convertPair,  convertPairSellPrice, fromBasePair, fromBasePairSellPrice, toBasePair, toBasePairBuyPrice, arbitrage_fee);
+		log.debug("p3:convertPair:{}(convertPairSellPrice:{})->p2:fromBasePair:{}(fromBasePairSellPrice:{})->p1:toBasePair:{}(toBasePairBuyPrice:{}), -- arbitrage:{}",convertPair,  convertPairSellPrice, fromBasePair, fromBasePairSellPrice, toBasePair, toBasePairBuyPrice, arbitrage);
+
+		return arbitrage;
 	}
 }

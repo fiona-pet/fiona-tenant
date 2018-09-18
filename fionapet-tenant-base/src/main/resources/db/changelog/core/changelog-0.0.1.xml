@@ -189,5 +189,28 @@
 		</createTable>
 	</changeSet>
 
+	<changeSet id="14" author="elgleidson">
+		<createTable tableName="arbitrage_log">
+			<column name="id" type="bigint" autoIncrement="true">
+				<constraints primaryKey="true"/>
+			</column>
+
+			<column name="exchange_id" type="bigint"/>
+			<column name="convert_pair" type="varchar(16)"/>
+			<column name="from_base_pair" type="varchar(16)"/>
+			<column name="to_base_pair" type="varchar(16)"/>
+			<column name="convert_pair_sell_price" type="float"/>
+			<column name="from_base_pair_sell_price" type="float"/>
+			<column name="to_base_pair_buy_price" type="float"/>
+			<column name="arbitrage" type="float"/>
+
+			<column name="created_date" type="datetime"/>
+			<column name="last_modified_date" type="datetime"/>
+			<column name="created_by" type="bigint"/>
+			<column name="last_modified_by" type="bigint"/>
+		</createTable>
+	</changeSet>
+
+
 
 </databaseChangeLog>

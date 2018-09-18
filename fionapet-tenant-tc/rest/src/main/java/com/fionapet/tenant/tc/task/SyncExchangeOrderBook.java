@@ -1,30 +1,31 @@
 package com.fionapet.tenant.tc.task;
 
-import com.fionapet.tenant.listener.ArbitrageEvent;
 import com.fionapet.tenant.listener.ExchangeOrderEvent;
 import com.fionapet.tenant.tc.entity.Exchange;
-import com.fionapet.tenant.tc.entity.TopOneOrderBook;
-import com.fionapet.tenant.tc.entity.TrianglePair;
 import com.fionapet.tenant.tc.service.ExchangeService;
 import com.fionapet.tenant.tc.service.TopOneOrderBookService;
 import com.fionapet.tenant.xchange.XchangeService;
 import lombok.extern.slf4j.Slf4j;
-import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
+
 @EnableScheduling
+@Configurable
 @Component
+@EnableAsync
 @Slf4j
 public class SyncExchangeOrderBook {
 
@@ -41,6 +42,7 @@ public class SyncExchangeOrderBook {
     TopOneOrderBookService topOneOrderBookService;
 
     @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
+    @Async
     public void update() throws Exception {
         List<Exchange> exchangeList = exchangeService.list();
 
@@ -57,16 +59,11 @@ public class SyncExchangeOrderBook {
                         @Override
                         public void accept(CurrencyPair currencyPair) {
                             try {
-                                OrderBook
-                                        orderBook =
-                                        xchangeService
-                                                .getOrderBook(exchange.getInstanceName(),
-                                                              currencyPair);
                                 applicationContext
-                                        .publishEvent(new ExchangeOrderEvent(this, orderBook,
-                                                                             exchange.getId(),
+                                        .publishEvent(new ExchangeOrderEvent(this,
+                                                                             exchange,
                                                                              currencyPair));
-                            } catch (IOException e) {
+                            } catch (Exception e) {
                                 log.warn("from {} get order book error!", e);
                             }
 

@@ -1,21 +1,19 @@
 package com.fionapet.tenant.listener;
 
+import com.fionapet.tenant.tc.entity.Exchange;
 import lombok.Getter;
 import org.knowm.xchange.currency.CurrencyPair;
-import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.springframework.context.ApplicationEvent;
 
 @Getter
 public class ExchangeOrderEvent extends ApplicationEvent {
-    private OrderBook orderBook;
-    private Long exchangeId;
+    private Exchange exchange;
     private CurrencyPair currencyPair;
 
-    public ExchangeOrderEvent(Object source, OrderBook orderBook, Long exchangeId,
+    public ExchangeOrderEvent(Object source, Exchange exchange,
                               CurrencyPair currencyPair) {
         super(source);
-        this.orderBook = orderBook;
-        this.exchangeId = exchangeId;
+        this.exchange = exchange;
         this.currencyPair = currencyPair;
     }
 }

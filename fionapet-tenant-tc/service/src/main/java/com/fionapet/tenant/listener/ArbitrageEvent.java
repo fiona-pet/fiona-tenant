@@ -8,10 +8,13 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 public class ArbitrageEvent extends ApplicationEvent {
+    private Long exchageId;
     private TrianglePair trianglePair;
 
-    public ArbitrageEvent(Object source, TrianglePair trianglePair) {
+    public ArbitrageEvent(Object source, Long exchageId,
+                          TrianglePair trianglePair) {
         super(source);
+        this.exchageId = exchageId;
         this.trianglePair = trianglePair;
     }
 }
