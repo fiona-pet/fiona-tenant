@@ -115,7 +115,10 @@ public class XchangeService {
         TopOneOrderBook topOneOrderBook = new TopOneOrderBook();
 
         topOneOrderBook.setBidPrice(orderBook.getBids().get(0).getLimitPrice().floatValue());
+        topOneOrderBook.setBidRemainingAmount(orderBook.getBids().get(0).getRemainingAmount().floatValue());
+
         topOneOrderBook.setAskPrice(orderBook.getAsks().get(0).getLimitPrice().floatValue());
+        topOneOrderBook.setAskRemainingAmount(orderBook.getAsks().get(0).getRemainingAmount().floatValue());
 
         return topOneOrderBook;
     }

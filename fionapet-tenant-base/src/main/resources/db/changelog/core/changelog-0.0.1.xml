@@ -211,6 +211,23 @@
 		</createTable>
 	</changeSet>
 
+	<changeSet id="15" author="elgleidson">
+		<addUniqueConstraint tableName="top_one_order_book" columnNames="exchange_id, currency_pair"/>
+	</changeSet>
 
+	<changeSet id="16" author="elgleidson">
+		<addColumn tableName="top_one_order_book">
+			<column name="bid_remaining_amount" type="float"/>
+			<column name="ask_remaining_amount" type="float"/>
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="17" author="elgleidson">
+		<addColumn tableName="arbitrage_log">
+			<column name="convert_pair_remaining_amount" type="float"/>
+			<column name="from_base_pair_remaining_amount" type="float"/>
+			<column name="to_base_pair_remaining_amount" type="float"/>
+		</addColumn>
+	</changeSet>
 
 </databaseChangeLog>

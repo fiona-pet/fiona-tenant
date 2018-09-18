@@ -49,6 +49,10 @@ public class TrianglePair {
 	private float fromBasePairSellPrice;
 	private float toBasePairBuyPrice;
 
+	private float convertPairRemainingAmount;
+	private float fromBasePairRemainingAmount;
+	private float toBasePairRemainingAmount;
+
 	public float arbitrage(){
 		float arbitrage = 0;
 		// P3 = ltc_btc_sell1_price*(1+ltc_btc_slippage)

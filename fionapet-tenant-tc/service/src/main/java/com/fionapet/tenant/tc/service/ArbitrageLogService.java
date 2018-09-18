@@ -25,6 +25,7 @@ public class ArbitrageLogService {
         return entity;
     }
 
+    @Transactional
     public void clean(Long exchangeId) {
         arbitrageLogRepository.deleteByExchangeIdAndArbitrageLessThan(exchangeId, 0);
     }

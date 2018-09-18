@@ -52,6 +52,11 @@ public class ArbitrageLog extends AbstractAuditableEntity {
     private float fromBasePairSellPrice;
     private float toBasePairBuyPrice;
 
+
+    private float convertPairRemainingAmount;
+    private float fromBasePairRemainingAmount;
+    private float toBasePairRemainingAmount;
+
     private float arbitrage;
 
     public ArbitrageLog(TrianglePair trianglePair) {
@@ -61,6 +66,11 @@ public class ArbitrageLog extends AbstractAuditableEntity {
         this.convertPairSellPrice = trianglePair.getConvertPairSellPrice();
         this.fromBasePairSellPrice = trianglePair.getFromBasePairSellPrice();
         this.toBasePairBuyPrice = trianglePair.getToBasePairBuyPrice();
+
+        this.convertPairRemainingAmount = trianglePair.getConvertPairRemainingAmount();
+        this.fromBasePairRemainingAmount = trianglePair.getFromBasePairRemainingAmount();
+        this.toBasePairRemainingAmount = trianglePair.getToBasePairRemainingAmount();
+
     }
 
     public ArbitrageLog() {

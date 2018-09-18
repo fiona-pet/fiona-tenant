@@ -42,6 +42,7 @@ public class ArbitrageListener {
 
         if (null != topOneOrderBook) {
             trianglePair.setConvertPairSellPrice(topOneOrderBook.getAskPrice());
+            trianglePair.setConvertPairRemainingAmount(topOneOrderBook.getAskRemainingAmount());
 
             topOneOrderBook =
                     topOneOrderBookService
@@ -49,6 +50,7 @@ public class ArbitrageListener {
                                                              trianglePair.getFromBasePair()
                                                                      .toString());
             trianglePair.setFromBasePairSellPrice(topOneOrderBook.getAskPrice());
+            trianglePair.setFromBasePairRemainingAmount(topOneOrderBook.getAskRemainingAmount());
 
             topOneOrderBook =
                     topOneOrderBookService
@@ -56,6 +58,7 @@ public class ArbitrageListener {
                                                              trianglePair.getToBasePair()
                                                                      .toString());
             trianglePair.setToBasePairBuyPrice(topOneOrderBook.getBidPrice());
+            trianglePair.setToBasePairRemainingAmount(topOneOrderBook.getBidRemainingAmount());
 
             Float arbitrage = arbitrageEvent.getTrianglePair().arbitrage();
 

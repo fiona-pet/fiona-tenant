@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <xchange.verion>4.3.10-SNAPSHOT</xchange.verion>
+        <xchange.verion>4.3.11-SNAPSHOT</xchange.verion>
         <xchange.groupId>org.knowm.xchange</xchange.groupId>
     </properties>
 

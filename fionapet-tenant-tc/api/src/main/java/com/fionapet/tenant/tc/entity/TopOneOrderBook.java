@@ -47,5 +47,16 @@ public class TopOneOrderBook extends AbstractAuditableEntity {
      * 卖 1
      */
     private float askPrice;
-	
+
+    /**
+     * 剩余订货量
+     */
+    private float bidRemainingAmount;
+
+    /**
+     * 剩余订货量
+     */
+    private float askRemainingAmount;
+
+
 }
