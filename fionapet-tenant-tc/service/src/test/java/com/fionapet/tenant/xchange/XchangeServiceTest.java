@@ -67,7 +67,7 @@ public class XchangeServiceTest {
     }
 
     @Test
-    public void testGrenCurrencyPair(){
+    public void testGrenCurrencyPair() throws Exception {
         List<CurrencyPair> currencyPairList = xchangeService.getExchangeSymbols(instanceName);
 
         List<TrianglePair> trianglePairs = xchangeService.grenCurrencyPair(Currency.USD, currencyPairList);

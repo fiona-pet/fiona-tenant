@@ -27,6 +27,11 @@ public class ArbitrageLogService {
 
     @Transactional
     public void clean(Long exchangeId) {
-        arbitrageLogRepository.deleteByExchangeIdAndArbitrageLessThan(exchangeId, 0);
+        try {
+            arbitrageLogRepository.deleteByExchangeIdAndArbitrageLessThan(exchangeId, 0);
+        }catch (Exception e){
+            log.debug("clean", e);
+        }
+
     }
 }

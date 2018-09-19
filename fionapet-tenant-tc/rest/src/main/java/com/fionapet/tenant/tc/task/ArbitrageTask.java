@@ -50,9 +50,8 @@ public class ArbitrageTask {
     ArbitrageLogService arbitrageLogService;
 
     @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
-    @Transactional
     @Async
-    public void grenCurrencyPair() throws Exception {
+    public void grenCurrencyPair() {
 
         List<Exchange> exchangeList = exchangeService.list();
 
@@ -63,24 +62,29 @@ public class ArbitrageTask {
 
                 arbitrageLogService.clean(exchange.getId());
 
-                List<CurrencyPair>
-                        currencyPairs =
-                        xchangeService.getExchangeSymbols(exchange.getInstanceName());
+                try {
+                    List<CurrencyPair>
+                            currencyPairs =
+                            xchangeService.getExchangeSymbols(exchange.getInstanceName());
 
-                List<TrianglePair>
-                        trianglePairs =
-                        xchangeService.grenCurrencyPair(Currency.USD, currencyPairs);
+                    List<TrianglePair>
+                            trianglePairs =
+                            xchangeService.grenCurrencyPair(Currency.USD, currencyPairs);
 
-                trianglePairs.stream().forEach(new Consumer<TrianglePair>() {
-                    @Override
-                    public void accept(TrianglePair trianglePair) {
-                        applicationContext
-                                .publishEvent(
-                                        new ArbitrageEvent(this, exchange.getId(), trianglePair));
-                    }
-                });
+                    trianglePairs.stream().forEach(new Consumer<TrianglePair>() {
+                        @Override
+                        public void accept(TrianglePair trianglePair) {
+                            applicationContext
+                                    .publishEvent(
+                                            new ArbitrageEvent(this, exchange.getId(),
+                                                               trianglePair));
+                        }
+                    });
 
-                log.info("获取 三角链 数据准备");
+                    log.info("获取 三角链 数据准备");
+                }catch (Exception e){
+                    log.debug("获取数据异常", e);
+                }
             }
         });
     }

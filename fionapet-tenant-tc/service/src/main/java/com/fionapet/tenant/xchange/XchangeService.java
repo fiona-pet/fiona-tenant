@@ -60,8 +60,13 @@ public class XchangeService {
      * @return
      */
     public List<CurrencyPair> getExchangeSymbols(String instanceName){
-        Exchange exchange = ExchangeFactory.INSTANCE.createExchange(instanceName);
-        return exchange.getExchangeSymbols();
+        try {
+            Exchange exchange = ExchangeFactory.INSTANCE.createExchange(instanceName);
+            return exchange.getExchangeSymbols();
+        }catch (Exception e){
+            log.warn("getExchangeSymbols", e);
+        }
+        return new ArrayList<>();
     }
 
     /**

@@ -43,7 +43,6 @@ public class SyncExchangeOrderBook {
     TopOneOrderBookService topOneOrderBookService;
 
     @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
-    @Transactional
     @Async
     public void update() throws Exception {
         List<Exchange> exchangeList = exchangeService.list();

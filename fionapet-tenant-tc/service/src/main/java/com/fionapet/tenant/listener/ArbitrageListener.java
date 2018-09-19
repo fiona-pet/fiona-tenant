@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -18,6 +20,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@EnableAsync
 public class ArbitrageListener {
 
     @Autowired
@@ -31,6 +34,7 @@ public class ArbitrageListener {
 
 
     @EventListener
+    @Async
     public void arbitrage(ArbitrageEvent arbitrageEvent) {
         TopOneOrderBook
                 topOneOrderBook =
