@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,6 +43,7 @@ public class SyncExchangeOrderBook {
     TopOneOrderBookService topOneOrderBookService;
 
     @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
+    @Transactional
     @Async
     public void update() throws Exception {
         List<Exchange> exchangeList = exchangeService.list();
