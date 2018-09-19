@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -43,5 +44,10 @@ public class TopOneOrderBookService {
 
     public TopOneOrderBook findByExchangeIdAndCurrencyPair(Long exchangeId, String currencyPair) {
         return topOneOrderBookRepository.findByExchangeIdAndCurrencyPair(exchangeId, currencyPair);
+    }
+
+    @Transactional
+    public void save(List<TopOneOrderBook> topOneOrderBooks) {
+        topOneOrderBookRepository.saveAll(topOneOrderBooks);
     }
 }

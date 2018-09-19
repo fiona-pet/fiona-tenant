@@ -1,5 +1,6 @@
 package com.fionapet.tenant.listener;
 
+import com.fionapet.tenant.tc.entity.Arbitrage;
 import com.fionapet.tenant.tc.entity.ArbitrageLog;
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
 import com.fionapet.tenant.tc.entity.TrianglePair;
@@ -60,10 +61,11 @@ public class ArbitrageListener {
             trianglePair.setToBasePairBuyPrice(topOneOrderBook.getBidPrice());
             trianglePair.setToBasePairRemainingAmount(topOneOrderBook.getBidRemainingAmount());
 
-            Float arbitrage = arbitrageEvent.getTrianglePair().arbitrage();
+            Arbitrage arbitrage = arbitrageEvent.getTrianglePair().arbitrage();
 
             ArbitrageLog arbitrageLog = new ArbitrageLog(arbitrageEvent.getTrianglePair());
-            arbitrageLog.setArbitrage(arbitrage);
+            arbitrageLog.setArbitrage(arbitrage.getArbitrage());
+            arbitrageLog.setArbitragePecentage(arbitrage.getPecentage());
             arbitrageLog.setExchangeId(arbitrageEvent.getExchageId());
             arbitrageLogService.save(arbitrageLog);
 

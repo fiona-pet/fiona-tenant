@@ -8,12 +8,9 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 public class ExchangeOrderEvent extends ApplicationEvent {
     private Exchange exchange;
-    private CurrencyPair currencyPair;
 
-    public ExchangeOrderEvent(Object source, Exchange exchange,
-                              CurrencyPair currencyPair) {
+    public ExchangeOrderEvent(Object source, Exchange exchange) {
         super(source);
         this.exchange = exchange;
-        this.currencyPair = currencyPair;
     }
 }

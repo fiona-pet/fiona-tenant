@@ -230,4 +230,10 @@
 		</addColumn>
 	</changeSet>
 
+    <changeSet id="18" author="elgleidson">
+        <addColumn tableName="arbitrage_log">
+            <column name="arbitrage_pecentage" type="float"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

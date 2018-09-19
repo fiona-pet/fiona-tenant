@@ -58,5 +58,4 @@ public class TopOneOrderBook extends AbstractAuditableEntity {
      */
     private float askRemainingAmount;
 
-
 }

@@ -71,5 +71,4 @@ public abstract class AbstractAuditableEntity implements Serializable {
 	public void setLastModifiedBy(Long lastModifiedBy) {
 		this.lastModifiedBy = lastModifiedBy;
 	}
-
 }

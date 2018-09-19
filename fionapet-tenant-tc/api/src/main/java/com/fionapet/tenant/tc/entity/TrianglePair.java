@@ -53,43 +53,40 @@ public class TrianglePair {
 	private float fromBasePairRemainingAmount;
 	private float toBasePairRemainingAmount;
 
-	public float arbitrage(){
-		float arbitrage = 0;
-		// P3 = ltc_btc_sell1_price*(1+ltc_btc_slippage)
+	public Arbitrage arbitrage(){
+		float arbitrageValue = 0;
 
-		float ltc_btc_sell1_price = convertPairSellPrice;
+        float ltc_btc_sell1_price = convertPairSellPrice;
+        float btc_usd_sell1_price = fromBasePairSellPrice;
+        float ltc_usd_buy1_price = toBasePairBuyPrice;
 
+        // LTC/BTC 买入 LTC 需花费的 BTC数量
 		float p3 = ltc_btc_sell1_price * (1 + ltc_btc_slippage);
 
-
-		// P1= btc_usd_sell1_price*(1+btc_usd_slippage)
-
-		float btc_usd_sell1_price = fromBasePairSellPrice;
+        // BTC/USD 买入 BTC 需花费的 USD数量
 		float p1 = btc_usd_sell1_price * (1 + btc_usd_slippage);
 
-
-		// P2 = ltc_usd_buy1_price*(1-ltc_usd_slippage)
-
-		float ltc_usd_buy1_price = toBasePairBuyPrice;
-
+        // LTC/USD 卖出 BTC 获得的 USD数量
 		float p2 = ltc_usd_buy1_price * (1 + ltc_usd_slippage);
 
 		// 在LTC/BTC市场净买入1个LTC，实际上需要买入1/(1-ltc_btc_fee)个LTC，其中的ltc_btc_fee比例部分，是被交易平台收走的手续费。买入1/(1-ltc_btc_fee)个LTC需要花费的BTC数量是
-		float sell_ltc_btc_sub = ltc_btc_sell1_price * (1 + ltc_btc_slippage) / (1 - ltc_btc_fee);
+		float buy_ltc_out_btc_num = p3 / (1 - ltc_btc_fee);
 
 		// 在LTC/CNY市场，卖出1个LTC，得到的usd是
-		float sell_ltc_usd_add = ltc_usd_buy1_price * (1 - ltc_usd_slippage) * (1 - ltc_usd_fee);
+		float sell_ltc_in_usd_num = p2 * (1 - ltc_usd_fee);
 
-		// 在BTC/usd市场，净买入sell_ltc_btc_sub 个 btc ，实际需要买入
-		// ltc_btc_sell_1_price*(1+ltc_btc_slippage)/[(1-ltc_btc_fee)*(1-btc_usd_fee)] 个btc
-		float sell_ltc_usd_sub =
-				btc_usd_sell1_price
-				* (1 + btc_usd_slippage)
-				* ltc_btc_sell1_price
-				* (1 + ltc_btc_slippage)
-				/ ((1 - ltc_btc_fee) * (1 - btc_usd_fee));
+        // 在BTC/usd市场，净买入 buy_ltc_out_btc_num 个 btc ，实际需要买入
+        // ltc_btc_sell_1_price*(1+ltc_btc_slippage)/[(1-ltc_btc_fee)*(1-btc_usd_fee)] 个btc
+        float buy_btc_out_usd_num = buy_ltc_out_btc_num * p1/(1-btc_usd_fee);
 
-		arbitrage = sell_ltc_usd_add - sell_ltc_usd_sub ;
+		arbitrageValue = sell_ltc_in_usd_num - buy_btc_out_usd_num ;
+
+		float arbitragePecentage = (sell_ltc_in_usd_num - buy_btc_out_usd_num)/buy_btc_out_usd_num;
+
+
+		Arbitrage arbitrage = new Arbitrage();
+		arbitrage.setArbitrage(arbitrageValue);
+		arbitrage.setPecentage(arbitragePecentage);
 
 		log.debug("p3:convertPair:{}(convertPairSellPrice:{})->p2:fromBasePair:{}(fromBasePairSellPrice:{})->p1:toBasePair:{}(toBasePairBuyPrice:{}), -- arbitrage:{}",convertPair,  convertPairSellPrice, fromBasePair, fromBasePairSellPrice, toBasePair, toBasePairBuyPrice, arbitrage);
 

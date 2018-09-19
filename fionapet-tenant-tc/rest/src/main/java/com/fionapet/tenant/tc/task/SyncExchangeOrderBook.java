@@ -50,28 +50,10 @@ public class SyncExchangeOrderBook {
             @Override
             public void accept(Exchange exchange) {
                 log.info("获取OrderBook:{}...", exchange);
-                try {
-                    List<CurrencyPair>
-                            currencyPairs =
-                            xchangeService.getExchangeSymbols(exchange.getInstanceName());
 
-                    currencyPairs.stream().forEach(new Consumer<CurrencyPair>() {
-                        @Override
-                        public void accept(CurrencyPair currencyPair) {
-                            try {
-                                applicationContext
-                                        .publishEvent(new ExchangeOrderEvent(this,
-                                                                             exchange,
-                                                                             currencyPair));
-                            } catch (Exception e) {
-                                log.warn("from {} get order book error!", e);
-                            }
-
-                        }
-                    });
-                }catch (Exception e){
-                    log.warn("exchange:{}", exchange, e);
-                }
+                applicationContext
+                        .publishEvent(new ExchangeOrderEvent(this,
+                                                             exchange));
 
                 log.info("获取OrderBook");
             }
