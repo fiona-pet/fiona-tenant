@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@EnableScheduling
-@Configurable
-@Component
-@EnableAsync
+//@EnableScheduling
+//@Configurable
+//@Component
+//@EnableAsync
 @Slf4j
 public class SyncExchangeOrderBook {
 

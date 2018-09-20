@@ -1,5 +1,6 @@
 package com.fionapet.tenant.listener;
 
+import com.fionapet.tenant.tc.entity.Exchange;
 import com.fionapet.tenant.tc.entity.TrianglePair;
 import lombok.Getter;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -8,13 +9,13 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 public class ArbitrageEvent extends ApplicationEvent {
-    private Long exchageId;
+    private Exchange exchange;
     private TrianglePair trianglePair;
 
-    public ArbitrageEvent(Object source, Long exchageId,
+    public ArbitrageEvent(Object source, Exchange exchange,
                           TrianglePair trianglePair) {
         super(source);
-        this.exchageId = exchageId;
+        this.exchange = exchange;
         this.trianglePair = trianglePair;
     }
 }

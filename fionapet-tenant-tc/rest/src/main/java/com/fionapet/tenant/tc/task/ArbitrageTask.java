@@ -76,7 +76,7 @@ public class ArbitrageTask {
                         public void accept(TrianglePair trianglePair) {
                             applicationContext
                                     .publishEvent(
-                                            new ArbitrageEvent(this, exchange.getId(),
+                                            new ArbitrageEvent(this, exchange,
                                                                trianglePair));
                         }
                     });
