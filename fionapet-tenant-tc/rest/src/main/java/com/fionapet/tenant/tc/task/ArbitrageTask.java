@@ -1,9 +1,7 @@
 package com.fionapet.tenant.tc.task;
 
 import com.fionapet.tenant.listener.ArbitrageEvent;
-import com.fionapet.tenant.listener.ExchangeOrderEvent;
 import com.fionapet.tenant.tc.entity.Exchange;
-import com.fionapet.tenant.tc.entity.TopOneOrderBook;
 import com.fionapet.tenant.tc.entity.TrianglePair;
 import com.fionapet.tenant.tc.service.ArbitrageLogService;
 import com.fionapet.tenant.tc.service.ExchangeService;
@@ -12,7 +10,6 @@ import com.fionapet.tenant.xchange.XchangeService;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
-import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.ApplicationContext;
@@ -21,9 +18,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -81,9 +76,9 @@ public class ArbitrageTask {
                         }
                     });
 
-                    log.info("获取 三角链 数据准备");
-                }catch (Exception e){
-                    log.debug("获取数据异常", e);
+                    log.info("获取 三角链 数据");
+                } catch (Exception e) {
+                    log.debug("{} 获取数据异常", exchange);
                 }
             }
         });

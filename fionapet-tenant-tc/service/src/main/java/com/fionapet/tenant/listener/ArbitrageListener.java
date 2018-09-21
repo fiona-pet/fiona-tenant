@@ -39,12 +39,30 @@ public class ArbitrageListener {
         Exchange exchange = arbitrageEvent.getExchange();
         TrianglePair trianglePair = arbitrageEvent.getTrianglePair();
 
+        if (syncTrianglePairData(exchange, trianglePair)) {
+            return;
+        }
+
+        Arbitrage arbitrage = trianglePair.arbitrage();
+
+        ArbitrageLog arbitrageLog = new ArbitrageLog(arbitrageEvent.getTrianglePair());
+        arbitrageLog.setArbitrage(arbitrage.getArbitrage());
+        arbitrageLog.setArbitragePecentage(arbitrage.getPecentage());
+        arbitrageLog.setExchangeId(exchange.getId());
+
+        arbitrageLogService.save(arbitrageLog);
+
+        log.debug("套利市场:{}, 套利币对:{}, 金额:{}", exchange.getId(),
+                  arbitrageEvent.getTrianglePair(), arbitrage);
+    }
+
+    private boolean syncTrianglePairData(Exchange exchange, TrianglePair trianglePair) {
         TopOneOrderBook
                 convertPairOrderBook =
                 getTopOneOrderBook(exchange.getInstanceName(), trianglePair.getConvertPair());
 
         if (null == convertPairOrderBook) {
-            return;
+            return true;
         }
 
         trianglePair.setConvertPairSellPrice(convertPairOrderBook.getAskPrice());
@@ -64,17 +82,7 @@ public class ArbitrageListener {
         trianglePair.setToBasePairBuyPrice(toBasePairOrderBook.getBidPrice());
         trianglePair.setToBasePairRemainingAmount(toBasePairOrderBook.getBidRemainingAmount());
 
-        Arbitrage arbitrage = trianglePair.arbitrage();
-
-        ArbitrageLog arbitrageLog = new ArbitrageLog(arbitrageEvent.getTrianglePair());
-        arbitrageLog.setArbitrage(arbitrage.getArbitrage());
-        arbitrageLog.setArbitragePecentage(arbitrage.getPecentage());
-        arbitrageLog.setExchangeId(exchange.getId());
-
-        arbitrageLogService.save(arbitrageLog);
-
-        log.debug("套利市场:{}, 套利币对:{}, 金额:{}", exchange.getId(),
-                  arbitrageEvent.getTrianglePair(), arbitrage);
+        return false;
     }
 
 
@@ -94,7 +102,7 @@ public class ArbitrageListener {
                     xchangeService.toTopOneOrderBook(orderBook);
 
         } catch (IOException e) {
-            log.warn("{} getTopOneOrderBook {} error!", instanceName, currencyPair, e);
+            log.warn("{} getTopOneOrderBook {} error!", instanceName, currencyPair);
         }
 
         return topOneOrderBook;
