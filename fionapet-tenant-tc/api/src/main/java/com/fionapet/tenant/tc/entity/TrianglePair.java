@@ -142,19 +142,28 @@ public class TrianglePair {
         float baseMidPriceSell1 = this.baseMidPrice.getAsks().get(0).getLimitPrice().floatValue();
         float quoteMidPriceBuy1 = this.quoteMidPrice.getBids().get(0).getLimitPrice().floatValue();
 
-        // 卖出 marketSellSize 个 base 得到 quote 的数量
-        float quoteBuySize = marketSellSize/((1+base_quote_slippage)*(1-base_quote_fee)*marketPriceBuy1);
+        // base/quote 卖出 base 得到 quote
+        float p3 = marketPriceBuy1 * (1 + base_quote_slippage);
 
-        // 卖出 quoteBuySize 个 quote 得到 mid 的数量
-        float midSizeFormSellQuote = quoteBuySize/((1+quote_mid_slippage)*(1-quote_mid_fee)*quoteMidPriceBuy1);
+        // quote/mid 卖出 quote 得到 mid
+        float p1 = quoteMidPriceBuy1 * (1 + quote_mid_slippage);
 
-        // 买入 marketSellSize 个 base 需要 mid 的数量
-        float midSizeForBuyBase = marketSellSize*(1+base_mid_slippage)*(1-base_mid_fee)*baseMidPriceSell1;
+        // base/mid 买入 base 花费 mid
+        float p2 = baseMidPriceSell1 * (1 + base_mid_slippage);
+
+
+        // 卖出 marketSellSize 个 base 得到 quote 的数量 p3
+        float quoteSellSize = marketSellSize * p3 * (1-base_quote_fee);
+
+        // 卖出 quoteSellSize 个 quote 得到 mid 的数量 p2
+        float midSizeFormSellQuote = quoteSellSize*p2*(1-quote_mid_fee);
+
+        // 买入 marketSellSize 个 base 花费 mid 的数量 p1
+        float midSizeForBuyBase = marketSellSize * p1/(1-base_mid_fee);
 
         float arbitrageValue = midSizeFormSellQuote - midSizeForBuyBase;
 
         float arbitragePecentage =arbitrageValue / midSizeForBuyBase;
-
 
         Arbitrage arbitrage = new Arbitrage();
         arbitrage.setArbitrage(arbitrageValue);
@@ -224,19 +233,27 @@ public class TrianglePair {
         float quoteMidPriceSell1 = this.quoteMidPrice.getAsks().get(0).getLimitPrice().floatValue();
         float marketPriceSell1 = this.marketPrice.getAsks().get(0).getLimitPrice().floatValue();
 
+        // base/quote 买入 base 需花费的 quote 数量
+        float p3 = marketPriceSell1 * (1 + base_quote_slippage);
+
+        // quote/mid 买入 quote 需花费的 mid 数量
+        float p1 = quoteMidPriceSell1 * (1 + quote_mid_slippage);
+
+        // base/mid 卖出 base 获得的 mid 数量
+        float p2 = baseMidPriceBuy1 * (1 + base_mid_slippage);
+
         // 买入 marketBuySize 个 base 需要 卖出 quote 的数量
-        float quoteSellSize = marketBuySize/((1+base_quote_slippage)*(1-base_quote_fee)*marketPriceSell1);
+        float quoteSellSize = marketBuySize * p3/(1-base_quote_fee);
 
         // 买入 quoteSellSize 个 quote 需要 卖出 mid 的数量
-        float midSizeForBuyQuote = quoteSellSize/((1+quote_mid_slippage)*(1-quote_mid_fee)*quoteMidPriceSell1);
+        float midSizeForBuyQuote = quoteSellSize * p1 /(1-quote_mid_fee);
 
         // 卖出 marketBuySize 个 base 获得 mid 的数量
-        float midSizeFromSellBase = marketBuySize*(1+base_mid_slippage)*(1-base_mid_fee)*baseMidPriceBuy1;
+        float midSizeFromSellBase = marketBuySize*p2*(1-base_mid_fee);
 
         float arbitrageValue = midSizeFromSellBase - midSizeForBuyQuote;
 
         float arbitragePecentage =arbitrageValue / midSizeForBuyQuote;
-
 
         Arbitrage arbitrage = new Arbitrage();
         arbitrage.setArbitrage(arbitrageValue);
