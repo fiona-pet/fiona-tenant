@@ -156,10 +156,10 @@ public class TrianglePair {
         float quoteSellSize = marketSellSize * p3 * (1-base_quote_fee);
 
         // 卖出 quoteSellSize 个 quote 得到 mid 的数量 p2
-        float midSizeFormSellQuote = quoteSellSize*p2*(1-quote_mid_fee);
+        float midSizeFormSellQuote = quoteSellSize*p1*(1-quote_mid_fee);
 
         // 买入 marketSellSize 个 base 花费 mid 的数量 p1
-        float midSizeForBuyBase = marketSellSize * p1/(1-base_mid_fee);
+        float midSizeForBuyBase = marketSellSize * p2/(1-base_mid_fee);
 
         float arbitrageValue = midSizeFormSellQuote - midSizeForBuyBase;
 
