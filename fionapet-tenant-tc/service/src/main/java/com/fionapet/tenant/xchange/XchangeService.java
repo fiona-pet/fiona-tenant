@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class XchangeService {
      * @return
      */
     public TopOneOrderBook getOrderBookByCurrencyPair(String instanceName, CurrencyPair currencyPair)
-            throws IOException {
+            throws Exception {
         OrderBook orderBook = getOrderBook(instanceName, currencyPair);
 
         TopOneOrderBook topOneOrderBook = new TopOneOrderBook();
@@ -44,7 +45,7 @@ public class XchangeService {
         return topOneOrderBook;
     }
 
-    public OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair)throws IOException {
+    public OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair)throws Exception {
         Exchange exchange = ExchangeFactory.INSTANCE.createExchange(instanceName);
 
         MarketDataService marketDataService = exchange.getMarketDataService();
@@ -71,16 +72,16 @@ public class XchangeService {
 
     /**
      * 获取 币对组合
-     * @param base
+     * @param mid
      * @param currencyPairs
      * @return
      */
-    public List<TrianglePair> grenCurrencyPair(final Currency base, List<CurrencyPair> currencyPairs){
+    public List<TrianglePair> grenCurrencyPair(final Currency mid, List<CurrencyPair> currencyPairs){
         //找到 所有以 base 为定价币的 币对
         List<CurrencyPair> hasBase = currencyPairs.stream().filter(new Predicate<CurrencyPair>() {
             @Override
             public boolean test(CurrencyPair currencyPair) {
-                return currencyPair.counter == base;
+                return currencyPair.counter == mid;
             }
         }).collect(Collectors.toList());
 
@@ -94,25 +95,47 @@ public class XchangeService {
 
                 CurrencyPair p1 = hasBase.get(i);
                 CurrencyPair p2 = hasBase.get(j);
-                CurrencyPair p3 = new CurrencyPair(p2.base, p1.base);
 
-                trianglePair.setFromBasePair(p1);
-                trianglePair.setToBasePair(p2);
-                trianglePair.setConvertPair(p3);
+                trianglePair.setBaseCur(p1.base);
+                trianglePair.setQuoteCur(p2.base);
+                trianglePair.setMidCur(p1.counter);
 
                 TrianglePair trianglePair2 = new TrianglePair();
 
-                trianglePair2.setFromBasePair(trianglePair.getToBasePair());
-                trianglePair2.setFromBasePair(trianglePair.getToBasePair());
-                trianglePair2.setToBasePair(trianglePair.getFromBasePair());
-                trianglePair2.setConvertPair(new CurrencyPair(p1.base, p2.base));
+                trianglePair2.setBaseCur(p2.base);
+                trianglePair2.setQuoteCur(p1.base);
+                trianglePair2.setMidCur(p1.counter);
 
-                trianglePairs.add(trianglePair);
-                trianglePairs.add(trianglePair2);
+                if (hasCurrencyPair(trianglePair, currencyPairs)){
+                    trianglePairs.add(trianglePair);
+                }
+
+                if (hasCurrencyPair(trianglePair2, currencyPairs)){
+                    trianglePairs.add(trianglePair2);
+                }
             }
         }
 
         return trianglePairs;
+    }
+
+    private boolean hasCurrencyPair(final TrianglePair trianglePair, List<CurrencyPair> currencyPairs) {
+        List<CurrencyPair> hasBase = currencyPairs.stream().filter(new Predicate<CurrencyPair>() {
+            @Override
+            public boolean test(CurrencyPair currencyPair) {
+                return currencyPair.base == trianglePair.getBaseCur();
+            }
+        }).collect(Collectors.toList());
+
+        List<CurrencyPair> hasQuote = hasBase.stream().filter(new Predicate<CurrencyPair>() {
+            @Override
+            public boolean test(CurrencyPair currencyPair) {
+                return currencyPair.counter == trianglePair.getQuoteCur();
+            }
+        }).collect(Collectors.toList());
+
+
+        return hasQuote.size() == 1;
     }
 
 

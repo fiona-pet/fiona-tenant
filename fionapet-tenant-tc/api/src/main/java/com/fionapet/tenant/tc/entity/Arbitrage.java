@@ -9,6 +9,8 @@ import lombok.ToString;
 @ToString
 public class Arbitrage {
 
+    public static final String TYPE_NEG = "NEG";
+    public static final String TYPE_POS = "POS";
     /**
      * 利润
      */
@@ -17,4 +19,6 @@ public class Arbitrage {
      * 百分比
      */
     private float pecentage;
+
+    private String type;
 }

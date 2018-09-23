@@ -34,44 +34,39 @@ public class ArbitrageLog extends AbstractAuditableEntity {
     private Long exchangeId;
 
     /**
-     * 中专币对
+     * 中间 - 持有 usd
      */
-    private String convertPair;
+    private String midCur;
 
     /**
-     * p2 基础币 转 中间币对
+     * 基础 ltc
      */
-    private String fromBasePair;
+    private String baseCur;
 
     /**
-     * p1 中间币 转 基础币
+     * 定价币 btc
      */
-    private String toBasePair;
+    private String quoteCur;
 
-    private Float convertPairSellPrice;
-    private Float fromBasePairSellPrice;
-    private Float toBasePairBuyPrice;
-
-
-    private Float convertPairRemainingAmount;
-    private Float fromBasePairRemainingAmount;
-    private Float toBasePairRemainingAmount;
-
+    /**
+     * 套利
+     */
     private Float arbitrage;
-    private Float arbitragePecentage;
+
+    /**
+     * 百分比
+     */
+    private Float pecentage;
+
+    /**
+     * 套利类型
+     */
+    private String type;
 
     public ArbitrageLog(TrianglePair trianglePair) {
-        this.convertPair = trianglePair.getConvertPair().toString();
-        this.fromBasePair = trianglePair.getFromBasePair().toString();
-        this.toBasePair = trianglePair.getToBasePair().toString();
-        this.convertPairSellPrice = trianglePair.getConvertPairSellPrice();
-        this.fromBasePairSellPrice = trianglePair.getFromBasePairSellPrice();
-        this.toBasePairBuyPrice = trianglePair.getToBasePairBuyPrice();
-
-        this.convertPairRemainingAmount = trianglePair.getConvertPairRemainingAmount();
-        this.fromBasePairRemainingAmount = trianglePair.getFromBasePairRemainingAmount();
-        this.toBasePairRemainingAmount = trianglePair.getToBasePairRemainingAmount();
-
+        this.midCur = trianglePair.getMidCur().toString();
+        this.quoteCur = trianglePair.getQuoteCur().toString();
+        this.baseCur = trianglePair.getBaseCur().toString();
     }
 
     public ArbitrageLog() {

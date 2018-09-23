@@ -196,13 +196,12 @@
 			</column>
 
 			<column name="exchange_id" type="bigint"/>
-			<column name="convert_pair" type="varchar(16)"/>
-			<column name="from_base_pair" type="varchar(16)"/>
-			<column name="to_base_pair" type="varchar(16)"/>
-			<column name="convert_pair_sell_price" type="float"/>
-			<column name="from_base_pair_sell_price" type="float"/>
-			<column name="to_base_pair_buy_price" type="float"/>
+			<column name="base_cur" type="varchar(16)"/>
+			<column name="mid_cur" type="varchar(16)"/>
+			<column name="quote_cur" type="varchar(16)"/>
 			<column name="arbitrage" type="float"/>
+			<column name="pecentage" type="float"/>
+			<column name="type" type="varchar(128)"/>
 
 			<column name="created_date" type="datetime"/>
 			<column name="last_modified_date" type="datetime"/>
@@ -210,30 +209,5 @@
 			<column name="last_modified_by" type="bigint"/>
 		</createTable>
 	</changeSet>
-
-	<changeSet id="15" author="elgleidson">
-		<addUniqueConstraint tableName="top_one_order_book" columnNames="exchange_id, currency_pair"/>
-	</changeSet>
-
-	<changeSet id="16" author="elgleidson">
-		<addColumn tableName="top_one_order_book">
-			<column name="bid_remaining_amount" type="float"/>
-			<column name="ask_remaining_amount" type="float"/>
-		</addColumn>
-	</changeSet>
-
-	<changeSet id="17" author="elgleidson">
-		<addColumn tableName="arbitrage_log">
-			<column name="convert_pair_remaining_amount" type="float"/>
-			<column name="from_base_pair_remaining_amount" type="float"/>
-			<column name="to_base_pair_remaining_amount" type="float"/>
-		</addColumn>
-	</changeSet>
-
-    <changeSet id="18" author="elgleidson">
-        <addColumn tableName="arbitrage_log">
-            <column name="arbitrage_pecentage" type="float"/>
-        </addColumn>
-    </changeSet>
 
 </databaseChangeLog>

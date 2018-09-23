@@ -39,56 +39,68 @@ public class ArbitrageListener {
         Exchange exchange = arbitrageEvent.getExchange();
         TrianglePair trianglePair = arbitrageEvent.getTrianglePair();
 
-        if (syncTrianglePairData(exchange, trianglePair)) {
+        if (!updateTrianglePairData(exchange, trianglePair)) {
             return;
         }
 
-        Arbitrage arbitrage = trianglePair.arbitrage();
+        arbitrage(Arbitrage.TYPE_POS, trianglePair);
+        arbitrage(Arbitrage.TYPE_NEG, trianglePair);
 
-        ArbitrageLog arbitrageLog = new ArbitrageLog(arbitrageEvent.getTrianglePair());
-        arbitrageLog.setArbitrage(arbitrage.getArbitrage());
-        arbitrageLog.setArbitragePecentage(arbitrage.getPecentage());
-        arbitrageLog.setExchangeId(exchange.getId());
-
-        arbitrageLogService.save(arbitrageLog);
-
-        log.debug("套利市场:{}, 套利币对:{}, 金额:{}", exchange.getId(),
-                  arbitrageEvent.getTrianglePair(), arbitrage);
     }
 
-    private boolean syncTrianglePairData(Exchange exchange, TrianglePair trianglePair) {
-        TopOneOrderBook
-                convertPairOrderBook =
-                getTopOneOrderBook(exchange.getInstanceName(), trianglePair.getConvertPair());
-
-        if (null == convertPairOrderBook) {
-            return true;
+    private void arbitrage(String type,TrianglePair trianglePair){
+        Arbitrage arbitrage = null;
+        if (Arbitrage.TYPE_POS.equals(type)) {
+            arbitrage = trianglePair.posArbitrage();
+        }else {
+            arbitrage = trianglePair.negArbitrage();
         }
 
-        trianglePair.setConvertPairSellPrice(convertPairOrderBook.getAskPrice());
-        trianglePair.setConvertPairRemainingAmount(convertPairOrderBook.getAskRemainingAmount());
+        if (null != arbitrage) {
+            ArbitrageLog arbitrageLog = new ArbitrageLog(trianglePair);
+            arbitrageLog.setArbitrage(arbitrage.getArbitrage());
+            arbitrageLog.setPecentage(arbitrage.getPecentage());
+            arbitrageLog.setType(arbitrage.getType());
+            arbitrageLog.setExchangeId(1l);
 
-        TopOneOrderBook
-                fromBasePairOrderBook =
-                getTopOneOrderBook(exchange.getInstanceName(), trianglePair.getFromBasePair());
+            arbitrageLogService.save(arbitrageLog);
+        }
+    }
 
-        trianglePair.setFromBasePairSellPrice(fromBasePairOrderBook.getAskPrice());
-        trianglePair.setFromBasePairRemainingAmount(fromBasePairOrderBook.getAskRemainingAmount());
+    /**
+     * 更新 币对 盘口 数据
+     * @param exchange
+     * @param trianglePair
+     * @return
+     */
+    private boolean updateTrianglePairData(Exchange exchange, final TrianglePair trianglePair) {
+        OrderBook
+                baseQuotePairOrderBook =
+                getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getBaseCur(), trianglePair.getQuoteCur()));
 
-        TopOneOrderBook
-                toBasePairOrderBook =
-                getTopOneOrderBook(exchange.getInstanceName(), trianglePair.getToBasePair());
+        if (null == baseQuotePairOrderBook) {
+            return false;
+        }
 
-        trianglePair.setToBasePairBuyPrice(toBasePairOrderBook.getBidPrice());
-        trianglePair.setToBasePairRemainingAmount(toBasePairOrderBook.getBidRemainingAmount());
+        trianglePair.setMarketPrice(baseQuotePairOrderBook);
 
-        return false;
+        OrderBook
+                baseMidPairOrderBook =
+                getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getBaseCur(), trianglePair.getMidCur()));
+
+        trianglePair.setBaseMidPrice(baseMidPairOrderBook);
+
+        OrderBook
+                quoteMidPairOrderBook =
+                getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getQuoteCur(), trianglePair.getMidCur()));
+
+        trianglePair.setQuoteMidPrice(quoteMidPairOrderBook);
+
+        return true;
     }
 
 
-    private TopOneOrderBook getTopOneOrderBook(String instanceName, CurrencyPair currencyPair) {
-        TopOneOrderBook
-                topOneOrderBook = null;
+    private OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair) {
         //获取 订单数据
         OrderBook
                 orderBook =
@@ -96,15 +108,13 @@ public class ArbitrageListener {
         try {
             orderBook = xchangeService
                     .getOrderBook(instanceName,
-                                  currencyPair);
+                            currencyPair);
 
-            topOneOrderBook =
-                    xchangeService.toTopOneOrderBook(orderBook);
 
-        } catch (IOException e) {
-            log.warn("{} getTopOneOrderBook {} error!", instanceName, currencyPair);
+        } catch (Exception e) {
+            log.warn("{} getOrderBook {} error!", instanceName, currencyPair);
         }
 
-        return topOneOrderBook;
+        return orderBook;
     }
 }
