@@ -1,6 +1,7 @@
 package com.fionapet.tenant.tc.task;
 
 import com.fionapet.tenant.listener.ArbitrageEvent;
+import com.fionapet.tenant.listener.ExchangeEvent;
 import com.fionapet.tenant.tc.entity.Exchange;
 import com.fionapet.tenant.tc.entity.TrianglePair;
 import com.fionapet.tenant.tc.service.ArbitrageLogService;
@@ -27,7 +28,7 @@ import java.util.function.Consumer;
 @Component
 @EnableAsync
 @Slf4j
-public class ArbitrageTask {
+public class ExchangeSymbolsTask {
 
     @Autowired
     private ExchangeService exchangeService;
@@ -37,9 +38,6 @@ public class ArbitrageTask {
 
     @Autowired
     ApplicationContext applicationContext;
-
-    @Autowired
-    TopOneOrderBookService topOneOrderBookService;
 
     @Autowired
     ArbitrageLogService arbitrageLogService;
@@ -71,8 +69,8 @@ public class ArbitrageTask {
                         public void accept(TrianglePair trianglePair) {
                             applicationContext
                                     .publishEvent(
-                                            new ArbitrageEvent(this, exchange,
-                                                               trianglePair));
+                                            new ExchangeEvent(this, exchange,
+                                                              trianglePair));
                         }
                     });
 

@@ -36,23 +36,12 @@ public class ArbitrageListener {
 
     @EventListener
     public void arbitrage(ArbitrageEvent arbitrageEvent) {
-        Exchange exchange = arbitrageEvent.getExchange();
+        Arbitrage arbitrage = null;
         TrianglePair trianglePair = arbitrageEvent.getTrianglePair();
 
-        if (!updateTrianglePairData(exchange, trianglePair)) {
-            return;
-        }
-
-        arbitrage(Arbitrage.TYPE_POS, trianglePair);
-        arbitrage(Arbitrage.TYPE_NEG, trianglePair);
-
-    }
-
-    private void arbitrage(String type,TrianglePair trianglePair){
-        Arbitrage arbitrage = null;
-        if (Arbitrage.TYPE_POS.equals(type)) {
+        if (Arbitrage.TYPE_POS.equals(arbitrageEvent.getArbitrageType())) {
             arbitrage = trianglePair.posArbitrage();
-        }else {
+        } else {
             arbitrage = trianglePair.negArbitrage();
         }
 
@@ -65,56 +54,7 @@ public class ArbitrageListener {
 
             arbitrageLogService.save(arbitrageLog);
         }
+
     }
 
-    /**
-     * 更新 币对 盘口 数据
-     * @param exchange
-     * @param trianglePair
-     * @return
-     */
-    private boolean updateTrianglePairData(Exchange exchange, final TrianglePair trianglePair) {
-        OrderBook
-                baseQuotePairOrderBook =
-                getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getBaseCur(), trianglePair.getQuoteCur()));
-
-        if (null == baseQuotePairOrderBook) {
-            return false;
-        }
-
-        trianglePair.setMarketPrice(baseQuotePairOrderBook);
-
-        OrderBook
-                baseMidPairOrderBook =
-                getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getBaseCur(), trianglePair.getMidCur()));
-
-        trianglePair.setBaseMidPrice(baseMidPairOrderBook);
-
-        OrderBook
-                quoteMidPairOrderBook =
-                getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getQuoteCur(), trianglePair.getMidCur()));
-
-        trianglePair.setQuoteMidPrice(quoteMidPairOrderBook);
-
-        return true;
-    }
-
-
-    private OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair) {
-        //获取 订单数据
-        OrderBook
-                orderBook =
-                null;
-        try {
-            orderBook = xchangeService
-                    .getOrderBook(instanceName,
-                            currencyPair);
-
-
-        } catch (Exception e) {
-            log.warn("{} getOrderBook {} error!", instanceName, currencyPair);
-        }
-
-        return orderBook;
-    }
 }

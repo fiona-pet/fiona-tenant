@@ -41,9 +41,9 @@ public class TrianglePair {
     public static final float base_mid_slippage = 0.00f;
     public static final float quote_mid_slippage = 0.00f;
 
-    public static final float base_quote_fee = 0.001f;  //# 设定手续费比例
-    public static final float base_mid_fee = 0.001f;
-    public static final float quote_mid_fee = 0.001f;
+    public static final float base_quote_fee = 0.0025f;  //# 设定手续费比例
+    public static final float base_mid_fee = 0.0025f;
+    public static final float quote_mid_fee = 0.0025f;
 
     public static final float order_ratio_base_quote = 1f;//  # 设定吃单比例
     public static final float order_ratio_base_mid = 1f;
