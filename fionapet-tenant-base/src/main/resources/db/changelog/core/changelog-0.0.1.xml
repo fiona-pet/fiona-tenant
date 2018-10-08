@@ -209,5 +209,26 @@
 			<column name="last_modified_by" type="bigint"/>
 		</createTable>
 	</changeSet>
+	<changeSet id="15" author="elgleidson">
+		<createTable tableName="order_book_price">
+			<column name="id" type="bigint" autoIncrement="true">
+				<constraints primaryKey="true"/>
+			</column>
+
+			<column name="arbitrage_log_id" type="bigint"/>
+			<column name="buy" type="float"/>
+			<column name="buy_amount" type="float"/>
+			<column name="sell" type="float"/>
+			<column name="sell_amount" type="float"/>
+			<column name="currency_pair" type="varchar(128)"/>
+
+			<column name="created_date" type="datetime"/>
+			<column name="last_modified_date" type="datetime"/>
+			<column name="created_by" type="bigint"/>
+			<column name="last_modified_by" type="bigint"/>
+		</createTable>
+	</changeSet>
+
+
 
 </databaseChangeLog>

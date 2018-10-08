@@ -66,19 +66,19 @@ public class ExchangeListener {
             return false;
         }
 
-        trianglePair.setMarketPrice(baseQuotePairOrderBook);
+        trianglePair.setMarketPriceOrderBook(baseQuotePairOrderBook);
 
         OrderBook
                 baseMidPairOrderBook =
                 getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getBaseCur(), trianglePair.getMidCur()));
 
-        trianglePair.setBaseMidPrice(baseMidPairOrderBook);
+        trianglePair.setBaseMidPriceOrderBook(baseMidPairOrderBook);
 
         OrderBook
                 quoteMidPairOrderBook =
                 getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getQuoteCur(), trianglePair.getMidCur()));
 
-        trianglePair.setQuoteMidPrice(quoteMidPairOrderBook);
+        trianglePair.setQuoteMidPriceOrderBook(quoteMidPairOrderBook);
 
         return true;
     }

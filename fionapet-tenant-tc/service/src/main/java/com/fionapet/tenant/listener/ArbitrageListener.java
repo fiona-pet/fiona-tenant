@@ -6,6 +6,7 @@ import com.fionapet.tenant.tc.entity.Exchange;
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
 import com.fionapet.tenant.tc.entity.TrianglePair;
 import com.fionapet.tenant.tc.service.ArbitrageLogService;
+import com.fionapet.tenant.tc.service.OrderBookPriceService;
 import com.fionapet.tenant.tc.service.TopOneOrderBookService;
 import com.fionapet.tenant.xchange.XchangeService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,9 @@ public class ArbitrageListener {
     @Autowired
     ArbitrageLogService arbitrageLogService;
 
+    @Autowired
+    OrderBookPriceService orderBookPriceService;
+
     @EventListener
     public void arbitrage(ArbitrageEvent arbitrageEvent) {
         Arbitrage arbitrage = null;
@@ -53,6 +57,16 @@ public class ArbitrageListener {
             arbitrageLog.setExchangeId(1l);
 
             arbitrageLogService.save(arbitrageLog);
+
+            if (arbitrage.getArbitrage() > 0){
+                trianglePair.getMarketPrice().setArbitrageLogId(arbitrageLog.getId());
+                trianglePair.getBaseMidPrice().setArbitrageLogId(arbitrageLog.getId());
+                trianglePair.getQuoteMidPrice().setArbitrageLogId(arbitrageLog.getId());
+
+                orderBookPriceService.save(trianglePair.getMarketPrice());
+                orderBookPriceService.save(trianglePair.getBaseMidPrice());
+                orderBookPriceService.save(trianglePair.getQuoteMidPrice());
+            }
         }
 
     }
