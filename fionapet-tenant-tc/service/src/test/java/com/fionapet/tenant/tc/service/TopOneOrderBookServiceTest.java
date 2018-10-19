@@ -27,9 +27,12 @@ public class TopOneOrderBookServiceTest {
     @Autowired
     TopOneOrderBookService topOneOrderBookService;
 
+    @Autowired
+    TenantContextHolder tenantContextHolder;
+
     @Before
     public void before() throws Exception {
-        TenantContextHolder.setCurrentSchema("user1");
+        tenantContextHolder.setCurrentSchema("user1");
     }
 
     @After

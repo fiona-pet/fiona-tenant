@@ -20,7 +20,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -37,6 +39,9 @@ public class ArbitrageListener {
 
     @Autowired
     OrderBookPriceService orderBookPriceService;
+
+
+    public static final Set<TrianglePair> TRIANGLE_PAIR_SET = new HashSet<TrianglePair>();
 
     @EventListener
     public void arbitrage(ArbitrageEvent arbitrageEvent) {
@@ -69,6 +74,7 @@ public class ArbitrageListener {
             }
         }
 
+        TRIANGLE_PAIR_SET.remove(trianglePair);
     }
 
 }

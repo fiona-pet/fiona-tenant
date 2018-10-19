@@ -20,6 +20,9 @@ public class JwtFilter extends OncePerRequestFilter {
 	@Autowired
 	private JwtTokenProvider tokenProvider;
 
+	@Autowired
+	TenantContextHolder tenantContextHolder;
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -29,11 +32,11 @@ public class JwtFilter extends OncePerRequestFilter {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
 			User user = (User) authentication.getPrincipal();
-			String schema = TenantContextHolder.DEFAULT_SCHEMA;
+			String schema = tenantContextHolder.getCurrentSchema();
 			if (user.getTenant() != null) {
 				schema = user.getTenant().getSchema();
 			}
-			TenantContextHolder.setCurrentSchema(schema);
+			tenantContextHolder.setCurrentSchema(schema);
 		}
 		
 		filterChain.doFilter(request, response);

@@ -33,7 +33,7 @@ public class XchangeServiceTest {
     @Autowired
     XchangeService xchangeService;
 
-    String instanceName = "org.knowm.xchange.bitstamp.BitstampExchange";
+    String instanceName = "org.knowm.xchange.binance.BinanceExchange";
 
     @Before
     public void before() throws Exception {
@@ -63,6 +63,8 @@ public class XchangeServiceTest {
     public void testGetExchangeSymbols() throws Exception {
         List<CurrencyPair> currencyPairList = xchangeService.getExchangeSymbols(instanceName);
 
+        log.debug("currencyPairList:{}" , currencyPairList);
+
         Assert.assertTrue(currencyPairList.size()>0);
     }
 
@@ -70,7 +72,7 @@ public class XchangeServiceTest {
     public void testGrenCurrencyPair() throws Exception {
         List<CurrencyPair> currencyPairList = xchangeService.getExchangeSymbols(instanceName);
 
-        List<TrianglePair> trianglePairs = xchangeService.grenCurrencyPair(Currency.USD, currencyPairList);
+        List<TrianglePair> trianglePairs = xchangeService.grenCurrencyPair(Currency.USDT, currencyPairList);
 
         log.debug("trianglePairs:{}" , trianglePairs);
     }

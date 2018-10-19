@@ -13,6 +13,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 
 import java.util.Collections;
+import java.util.Objects;
 
 @Data
 @Getter
@@ -76,6 +77,24 @@ public class TrianglePair {
      */
     private Currency baseCur;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TrianglePair that = (TrianglePair) o;
+        return Objects.equals(quoteCur, that.quoteCur) &&
+               Objects.equals(midCur, that.midCur) &&
+               Objects.equals(baseCur, that.baseCur);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(quoteCur, midCur, baseCur);
+    }
 
     /**
      * base_cur/quote_cur p3

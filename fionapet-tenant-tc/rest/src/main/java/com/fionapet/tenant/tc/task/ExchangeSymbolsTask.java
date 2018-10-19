@@ -1,12 +1,11 @@
 package com.fionapet.tenant.tc.task;
 
-import com.fionapet.tenant.listener.ArbitrageEvent;
+import com.fionapet.tenant.listener.ArbitrageListener;
 import com.fionapet.tenant.listener.ExchangeEvent;
 import com.fionapet.tenant.tc.entity.Exchange;
 import com.fionapet.tenant.tc.entity.TrianglePair;
 import com.fionapet.tenant.tc.service.ArbitrageLogService;
 import com.fionapet.tenant.tc.service.ExchangeService;
-import com.fionapet.tenant.tc.service.TopOneOrderBookService;
 import com.fionapet.tenant.xchange.XchangeService;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.Currency;
@@ -42,6 +41,7 @@ public class ExchangeSymbolsTask {
     @Autowired
     ArbitrageLogService arbitrageLogService;
 
+
     @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
     @Async
     public void grenCurrencyPair() {
@@ -67,10 +67,13 @@ public class ExchangeSymbolsTask {
                     trianglePairs.stream().forEach(new Consumer<TrianglePair>() {
                         @Override
                         public void accept(TrianglePair trianglePair) {
-                            applicationContext
-                                    .publishEvent(
-                                            new ExchangeEvent(this, exchange,
-                                                              trianglePair));
+                            if (!ArbitrageListener.TRIANGLE_PAIR_SET.contains(trianglePair)) {
+                                ArbitrageListener.TRIANGLE_PAIR_SET.add(trianglePair);
+                                applicationContext
+                                        .publishEvent(
+                                                new ExchangeEvent(this, exchange,
+                                                                  trianglePair));
+                            }
                         }
                     });
 
