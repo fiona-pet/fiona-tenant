@@ -47,5 +47,8 @@
     <logger name="com.fionapet.tenant" level="info">
         <appender-ref ref="syslog" />
     </logger>
+    <logger name="org.knowm.xchange" level="ERROR">
+        <appender-ref ref="STDOUT" />
+    </logger>
 </configuration>
 

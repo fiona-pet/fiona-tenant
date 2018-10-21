@@ -9,6 +9,7 @@ import com.fionapet.tenant.tc.service.ArbitrageLogService;
 import com.fionapet.tenant.tc.service.OrderBookPriceService;
 import com.fionapet.tenant.tc.service.TopOneOrderBookService;
 import com.fionapet.tenant.xchange.XchangeService;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
@@ -41,7 +42,7 @@ public class ArbitrageListener {
     OrderBookPriceService orderBookPriceService;
 
 
-    public static final Set<TrianglePair> TRIANGLE_PAIR_SET = new HashSet<TrianglePair>();
+    public static final Set<TrianglePair> TRIANGLE_PAIR_SET = Sets.newConcurrentHashSet();
 
     @EventListener
     public void arbitrage(ArbitrageEvent arbitrageEvent) {
@@ -75,6 +76,8 @@ public class ArbitrageListener {
         }
 
         TRIANGLE_PAIR_SET.remove(trianglePair);
+
+        log.info("获取 TRIANGLE_PAIR_SET 数据:{}", ArbitrageListener.TRIANGLE_PAIR_SET.size());
     }
 
 }

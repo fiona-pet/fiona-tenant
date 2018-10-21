@@ -77,7 +77,7 @@ public class ExchangeSymbolsTask {
                         }
                     });
 
-                    log.info("获取 三角链 数据");
+                    log.info("获取 三角链 数据:{}", ArbitrageListener.TRIANGLE_PAIR_SET.size());
                 } catch (Exception e) {
                     log.debug("{} 获取数据异常", exchange);
                 }
