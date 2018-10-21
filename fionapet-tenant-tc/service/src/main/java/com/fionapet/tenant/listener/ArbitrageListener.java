@@ -49,35 +49,36 @@ public class ArbitrageListener {
         Arbitrage arbitrage = null;
         TrianglePair trianglePair = arbitrageEvent.getTrianglePair();
 
-        if (Arbitrage.TYPE_POS.equals(arbitrageEvent.getArbitrageType())) {
-            arbitrage = trianglePair.posArbitrage();
-        } else {
-            arbitrage = trianglePair.negArbitrage();
-        }
-
-        if (null != arbitrage) {
-            ArbitrageLog arbitrageLog = new ArbitrageLog(trianglePair);
-            arbitrageLog.setArbitrage(arbitrage.getArbitrage());
-            arbitrageLog.setPecentage(arbitrage.getPecentage());
-            arbitrageLog.setType(arbitrage.getType());
-            arbitrageLog.setExchangeId(1l);
-
-            arbitrageLogService.save(arbitrageLog);
-
-            if (arbitrage.getArbitrage() > 0){
-                trianglePair.getMarketPrice().setArbitrageLogId(arbitrageLog.getId());
-                trianglePair.getBaseMidPrice().setArbitrageLogId(arbitrageLog.getId());
-                trianglePair.getQuoteMidPrice().setArbitrageLogId(arbitrageLog.getId());
-
-                orderBookPriceService.save(trianglePair.getMarketPrice());
-                orderBookPriceService.save(trianglePair.getBaseMidPrice());
-                orderBookPriceService.save(trianglePair.getQuoteMidPrice());
+        try {
+            if (Arbitrage.TYPE_POS.equals(arbitrageEvent.getArbitrageType())) {
+                arbitrage = trianglePair.posArbitrage();
+            } else {
+                arbitrage = trianglePair.negArbitrage();
             }
+
+            if (null != arbitrage) {
+                ArbitrageLog arbitrageLog = new ArbitrageLog(trianglePair);
+                arbitrageLog.setArbitrage(arbitrage.getArbitrage());
+                arbitrageLog.setPecentage(arbitrage.getPecentage());
+                arbitrageLog.setType(arbitrage.getType());
+                arbitrageLog.setExchangeId(1l);
+
+                arbitrageLogService.save(arbitrageLog);
+
+                if (arbitrage.getArbitrage() > 0) {
+                    trianglePair.getMarketPrice().setArbitrageLogId(arbitrageLog.getId());
+                    trianglePair.getBaseMidPrice().setArbitrageLogId(arbitrageLog.getId());
+                    trianglePair.getQuoteMidPrice().setArbitrageLogId(arbitrageLog.getId());
+
+                    orderBookPriceService.save(trianglePair.getMarketPrice());
+                    orderBookPriceService.save(trianglePair.getBaseMidPrice());
+                    orderBookPriceService.save(trianglePair.getQuoteMidPrice());
+                }
+            }
+        }finally {
+            TRIANGLE_PAIR_SET.remove(trianglePair);
+            log.info("获取 TRIANGLE_PAIR_SET 数据:{}", ArbitrageListener.TRIANGLE_PAIR_SET.size());
         }
-
-        TRIANGLE_PAIR_SET.remove(trianglePair);
-
-        log.info("获取 TRIANGLE_PAIR_SET 数据:{}", ArbitrageListener.TRIANGLE_PAIR_SET.size());
     }
 
 }
