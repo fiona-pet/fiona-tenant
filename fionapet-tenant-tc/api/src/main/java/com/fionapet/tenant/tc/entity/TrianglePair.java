@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ToStringExclude;
 import org.knowm.xchange.currency.Currency;

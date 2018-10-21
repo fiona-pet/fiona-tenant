@@ -52,6 +52,7 @@ public class XchangeService {
 
         OrderBook orderBook = marketDataService.getOrderBook(currencyPair);
 
+
         return orderBook;
     }
 

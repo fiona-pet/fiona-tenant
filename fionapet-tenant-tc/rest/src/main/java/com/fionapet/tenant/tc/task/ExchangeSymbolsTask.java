@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 @EnableScheduling
 @Configurable
 @Component
-@EnableAsync
+//@EnableAsync
 @Slf4j
 public class ExchangeSymbolsTask {
 
@@ -43,7 +43,7 @@ public class ExchangeSymbolsTask {
 
 
     @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
-    @Async
+//    @Async
     public void grenCurrencyPair() {
 
         List<Exchange> exchangeList = exchangeService.list();
