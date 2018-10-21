@@ -31,6 +31,9 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-core.xml
     default-schema: core_new
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
 
 management:
   endpoint:

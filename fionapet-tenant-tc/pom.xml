@@ -23,6 +23,7 @@
             <artifactId>fionapet-tenant-base</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <!--<dependency>-->
             <!--<artifactId>fionapet-tenant-security-parent</artifactId>-->
             <!--<groupId>com.fionapet.tenant.security</groupId>-->

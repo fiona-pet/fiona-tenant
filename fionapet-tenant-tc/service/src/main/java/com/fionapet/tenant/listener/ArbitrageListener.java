@@ -8,6 +8,7 @@ import com.fionapet.tenant.tc.entity.TrianglePair;
 import com.fionapet.tenant.tc.service.ArbitrageLogService;
 import com.fionapet.tenant.tc.service.OrderBookPriceService;
 import com.fionapet.tenant.tc.service.TopOneOrderBookService;
+import com.fionapet.tenant.tc.service.TrianglePairCacheService;
 import com.fionapet.tenant.xchange.XchangeService;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
+@EnableAsync
 public class ArbitrageListener {
 
     @Autowired
@@ -41,10 +43,14 @@ public class ArbitrageListener {
     @Autowired
     OrderBookPriceService orderBookPriceService;
 
+    @Autowired
+    TrianglePairCacheService trianglePairCacheService;
 
-    public static final Set<TrianglePair> TRIANGLE_PAIR_SET = Sets.newConcurrentHashSet();
+
+//    public static final Set<TrianglePair> TRIANGLE_PAIR_SET = Sets.newConcurrentHashSet();
 
     @EventListener
+    @Async
     public void arbitrage(ArbitrageEvent arbitrageEvent) {
         Arbitrage arbitrage = null;
         TrianglePair trianglePair = arbitrageEvent.getTrianglePair();
@@ -75,9 +81,9 @@ public class ArbitrageListener {
                     orderBookPriceService.save(trianglePair.getQuoteMidPrice());
                 }
             }
-        }finally {
-            TRIANGLE_PAIR_SET.remove(trianglePair);
-            log.info("获取 TRIANGLE_PAIR_SET 数据:{}", ArbitrageListener.TRIANGLE_PAIR_SET.size());
+        } finally {
+            trianglePairCacheService.delete(trianglePair.getKey());
+
         }
     }
 

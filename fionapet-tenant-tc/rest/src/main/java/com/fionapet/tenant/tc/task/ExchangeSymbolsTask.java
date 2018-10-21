@@ -6,12 +6,14 @@ import com.fionapet.tenant.tc.entity.Exchange;
 import com.fionapet.tenant.tc.entity.TrianglePair;
 import com.fionapet.tenant.tc.service.ArbitrageLogService;
 import com.fionapet.tenant.tc.service.ExchangeService;
+import com.fionapet.tenant.tc.service.TrianglePairCacheService;
 import com.fionapet.tenant.xchange.XchangeService;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -27,6 +29,7 @@ import java.util.function.Consumer;
 @Component
 //@EnableAsync
 @Slf4j
+@EnableCaching
 public class ExchangeSymbolsTask {
 
     @Autowired
@@ -40,6 +43,10 @@ public class ExchangeSymbolsTask {
 
     @Autowired
     ArbitrageLogService arbitrageLogService;
+
+    @Autowired
+    TrianglePairCacheService trianglePairCacheService;
+
 
 
     @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
@@ -67,8 +74,9 @@ public class ExchangeSymbolsTask {
                     trianglePairs.stream().forEach(new Consumer<TrianglePair>() {
                         @Override
                         public void accept(TrianglePair trianglePair) {
-                            if (!ArbitrageListener.TRIANGLE_PAIR_SET.contains(trianglePair)) {
-                                ArbitrageListener.TRIANGLE_PAIR_SET.add(trianglePair);
+
+                            if (null == trianglePairCacheService.getTrianglePair(trianglePair.getKey())) {
+                                trianglePairCacheService.putTrianglePair(trianglePair);
                                 applicationContext
                                         .publishEvent(
                                                 new ExchangeEvent(this, exchange,
@@ -77,7 +85,7 @@ public class ExchangeSymbolsTask {
                         }
                     });
 
-                    log.info("获取 三角链 数据:{}", ArbitrageListener.TRIANGLE_PAIR_SET.size());
+                    log.info("获取 三角链 数据.");
                 } catch (Exception e) {
                     log.debug("{} 获取数据异常", exchange);
                 }

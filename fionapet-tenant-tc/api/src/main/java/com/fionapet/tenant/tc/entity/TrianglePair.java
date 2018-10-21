@@ -76,6 +76,12 @@ public class TrianglePair {
      */
     private Currency baseCur;
 
+
+    public String getKey(){
+        return quoteCur.getCurrencyCode() + "-" + midCur.getCurrencyCode() + "-" + baseCur.getCurrencyCode();
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
