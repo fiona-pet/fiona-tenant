@@ -11,11 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.runner.RunWith;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -33,7 +35,7 @@ public class XchangeServiceTest {
     @Autowired
     XchangeService xchangeService;
 
-    String instanceName = "org.knowm.xchange.binance.BinanceExchange";
+    String instanceName = "org.knowm.xchange.bitstamp.BitstampExchange";
 
     @Before
     public void before() throws Exception {
@@ -75,6 +77,11 @@ public class XchangeServiceTest {
         List<TrianglePair> trianglePairs = xchangeService.grenCurrencyPair(Currency.USDT, currencyPairList);
 
         log.debug("trianglePairs:{}" , trianglePairs);
+    }
+
+    @Test
+    public void testBuy(){
+        xchangeService.buy(instanceName, new BigDecimal(".001"), CurrencyPair.BTC_USD, new BigDecimal("6000"));
     }
 
 } 
