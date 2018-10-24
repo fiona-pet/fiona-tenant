@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -80,8 +81,17 @@ public class XchangeServiceTest {
     }
 
     @Test
-    public void testBuy(){
-        xchangeService.buy(instanceName, new BigDecimal(".001"), CurrencyPair.BTC_USD, new BigDecimal("6000"));
+    public void testBuy() throws IOException {
+        xchangeService.bid(instanceName, new BigDecimal(".001"), CurrencyPair.BTC_USD, new BigDecimal("6727"));
+
+        log.info("open orders:{}", xchangeService.getOpenOrders(instanceName));
+    }
+
+    @Test
+    public void testSell() throws IOException {
+        xchangeService.sell(instanceName, new BigDecimal(".001"), CurrencyPair.BTC_USD, new BigDecimal("6740"));
+
+        log.info("open orders:{}", xchangeService.getOpenOrders(instanceName));
     }
 
 } 

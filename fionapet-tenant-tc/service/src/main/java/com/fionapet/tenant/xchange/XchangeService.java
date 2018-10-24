@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.bitstamp.BitstampAuthenticatedV2;
 import org.knowm.xchange.bitstamp.BitstampExchange;
+import org.knowm.xchange.bitstamp.dto.trade.BitstampOrder;
+import org.knowm.xchange.bitstamp.service.BitstampTradeServiceRaw;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
@@ -15,7 +18,6 @@ import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 import org.knowm.xchange.service.trade.TradeService;
-import org.knowm.xchange.service.trade.params.orders.OpenOrdersParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 import org.springframework.stereotype.Service;
 
@@ -76,32 +78,29 @@ public class XchangeService {
     private Exchange create(String instanceName) {
         ExchangeSpecification exSpec = new BitstampExchange().getDefaultExchangeSpecification();
         exSpec.setUserName("123");
-        exSpec.setApiKey("api");
-        exSpec.setSecretKey("sec");
+        exSpec.setApiKey("123");
+        exSpec.setSecretKey("123");
 
         return ExchangeFactory.INSTANCE.createExchange(exSpec);
     }
 
     /**
      * 购买
-     * @param instanceName 市场
+     *
+     * @param instanceName   市场
      * @param originalAmount 购买数量
-     * @param currencyPair 币对
-     * @param limitPrice 挂单价格
+     * @param currencyPair   币对
+     * @param limitPrice     挂单价格
      * @return 挂单信息
      */
-    public LimitOrder buy(String instanceName, BigDecimal originalAmount,
-                      CurrencyPair currencyPair, BigDecimal limitPrice) {
+    public LimitOrder bid(String instanceName, BigDecimal originalAmount,
+                          CurrencyPair currencyPair, BigDecimal limitPrice) {
         try {
             Exchange exchange = create(instanceName);
 
             TradeService tradeService = exchange.getTradeService();
 
             log.info("account:{}", exchange.getAccountService().getAccountInfo());
-
-            final OpenOrdersParams openOrdersParamsAll = tradeService.createOpenOrdersParams();
-
-            printOpenOrders(tradeService, openOrdersParamsAll);
 
             // place a limit buy order
             LimitOrder limitOrder =
@@ -119,16 +118,55 @@ public class XchangeService {
 
             return limitOrder;
         } catch (Exception e) {
-            log.warn("getExchangeSymbols", e);
+            log.warn("LimitOrder bid", e);
         }
         return null;
     }
 
-    private static void printOpenOrders(TradeService tradeService,
-                                        OpenOrdersParams openOrdersParams)
+
+    public BitstampOrder sell(String instanceName, BigDecimal originalAmount,
+                              CurrencyPair currencyPair, BigDecimal limitPrice) {
+
+        try {
+            Exchange exchange = create(instanceName);
+
+            BitstampTradeServiceRaw tradeService =
+                    (BitstampTradeServiceRaw) exchange.getTradeService();
+
+            log.info("account:{}", exchange.getAccountService().getAccountInfo());
+
+            // place a limit sell order
+            BitstampOrder order =
+                    tradeService.placeBitstampOrder(
+                            currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount,
+                            limitPrice);
+
+            log.info("BitstampOrder Order return value:{}", order);
+
+            return order;
+        } catch (Exception e) {
+            log.warn("BitstampOrder sell", e);
+        }
+        return null;
+    }
+
+    /**
+     * 获取订单
+     */
+    public OpenOrders getOpenOrders(String instanceName)
             throws IOException {
-        OpenOrders openOrders = tradeService.getOpenOrders(openOrdersParams);
-        log.info("Trade Open Orders for {}: {}", openOrdersParams, openOrders);
+
+        Exchange exchange = create(instanceName);
+
+        TradeService tradeService = exchange.getTradeService();
+
+        OpenOrdersParams openOrdersParamsAll = tradeService.createOpenOrdersParams();
+
+        OpenOrders openOrders = tradeService.getOpenOrders(openOrdersParamsAll);
+
+        log.debug("Trade Open Orders for {}: {}", openOrders);
+
+        return openOrders;
     }
 
 
