@@ -77,9 +77,9 @@ public class XchangeService {
 
     private Exchange create(String instanceName) {
         ExchangeSpecification exSpec = new BitstampExchange().getDefaultExchangeSpecification();
-        exSpec.setUserName("123");
-        exSpec.setApiKey("123");
-        exSpec.setSecretKey("123");
+        exSpec.setUserName("rkrh7895");
+        exSpec.setApiKey("4PY9FR49f0IZA8sRSVk12ygLDMj0Ensq");
+        exSpec.setSecretKey("H78k4khdm7cXQwKz7gHjIwpWs9bXLu9P");
 
         return ExchangeFactory.INSTANCE.createExchange(exSpec);
     }
