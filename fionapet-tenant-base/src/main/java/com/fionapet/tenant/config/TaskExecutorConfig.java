@@ -18,9 +18,11 @@ public class TaskExecutorConfig implements AsyncConfigurer {
     public Executor getAsyncExecutor() {
         log.info("create executor pool!");
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(5);//线程池大小
-        taskExecutor.setMaxPoolSize(10);//线程池最大线程数
-        taskExecutor.setQueueCapacity(25);//最大等待任务数
+        taskExecutor.setCorePoolSize(8);//线程池大小
+        taskExecutor.setMaxPoolSize(16);//线程池最大线程数
+        taskExecutor.setQueueCapacity(16);//最大等待任务数
+        taskExecutor.setAllowCoreThreadTimeOut(true);
+        taskExecutor.setKeepAliveSeconds(2);
         taskExecutor.initialize();
         return taskExecutor;
     }
