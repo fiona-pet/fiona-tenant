@@ -22,7 +22,7 @@ public class TaskExecutorConfig implements AsyncConfigurer {
         taskExecutor.setMaxPoolSize(16);//线程池最大线程数
         taskExecutor.setQueueCapacity(16);//最大等待任务数
         taskExecutor.setAllowCoreThreadTimeOut(true);
-        taskExecutor.setKeepAliveSeconds(2);
+        taskExecutor.setKeepAliveSeconds(300);
         taskExecutor.initialize();
         return taskExecutor;
     }
