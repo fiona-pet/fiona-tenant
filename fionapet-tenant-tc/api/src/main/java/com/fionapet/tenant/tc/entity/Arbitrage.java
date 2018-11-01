@@ -11,6 +11,20 @@ public class Arbitrage {
 
     public static final String TYPE_NEG = "NEG";
     public static final String TYPE_POS = "POS";
+
+    /**
+     * p1
+     */
+    private OrderBookPrice quoteMidOrderBookPrice;
+    /**
+     * p2
+     */
+    private OrderBookPrice baseQuoteOrderBookPrice;
+    /**
+     * p3
+     */
+    private OrderBookPrice baseMidOrderBookPrice;
+
     /**
      * 利润
      */

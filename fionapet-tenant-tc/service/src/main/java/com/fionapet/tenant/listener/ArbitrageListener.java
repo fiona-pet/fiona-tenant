@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -46,8 +47,8 @@ public class ArbitrageListener {
     @Autowired
     TrianglePairCacheService trianglePairCacheService;
 
-
-//    public static final Set<TrianglePair> TRIANGLE_PAIR_SET = Sets.newConcurrentHashSet();
+    @Autowired
+    ApplicationContext applicationContext;
 
     @EventListener
     @Async
@@ -56,13 +57,13 @@ public class ArbitrageListener {
         TrianglePair trianglePair = arbitrageEvent.getTrianglePair();
 
         try {
-            if (Arbitrage.TYPE_POS.equals(arbitrageEvent.getArbitrageType())) {
-                arbitrage = trianglePair.posArbitrage();
-            } else {
-                arbitrage = trianglePair.negArbitrage();
-            }
+            arbitrage = trianglePair.arbitrage();
 
             if (null != arbitrage) {
+                PlaceOrderEvent placeOrderEvent = new PlaceOrderEvent(this, arbitrage.getType(), arbitrage.getQuoteMidOrderBookPrice(),
+                                                                      arbitrage.getBaseQuoteOrderBookPrice(),
+                                                                      arbitrage.getBaseMidOrderBookPrice());
+                applicationContext.publishEvent(placeOrderEvent);
                 ArbitrageLog arbitrageLog = new ArbitrageLog(trianglePair);
                 arbitrageLog.setArbitrage(arbitrage.getArbitrage());
                 arbitrageLog.setPecentage(arbitrage.getPecentage());

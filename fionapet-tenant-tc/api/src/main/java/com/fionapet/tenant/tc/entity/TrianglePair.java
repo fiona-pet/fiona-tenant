@@ -10,6 +10,8 @@ import org.apache.commons.lang3.builder.ToStringExclude;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -35,6 +37,8 @@ import java.util.Objects;
  *             '''
  */
 public class TrianglePair {
+    @Autowired
+    ApplicationContext applicationContext;
 
     private static final long serialVersionUID = 1L;
 
@@ -137,18 +141,6 @@ public class TrianglePair {
         this.quoteMidPrice = new OrderBookPrice(this.quoteMidPriceOrderBook, new CurrencyPair(this.quoteCur, this.midCur));
     }
 
-    public Arbitrage posArbitrage() {
-        float marketBuySize = getMarketBuySize();
-
-        return this.posCycle(marketBuySize);
-    }
-
-    public Arbitrage negArbitrage() {
-        float marketSellSize = getMarketSellSize();
-
-        return this.negCycle(marketSellSize);
-    }
-
     public Arbitrage arbitrage() {
         float posCycleFairPrice = posCycleFairPrice();
         float negCycleFairPrice = negCycleFairPrice();
@@ -198,6 +190,30 @@ public class TrianglePair {
         // 买入 marketSellSize 个 base 花费 mid 的数量 p1
         float midSizeForBuyBase = marketSellSize * p2 / (1 - base_mid_fee);
 
+        log.info("buy base/mid size:{}, price:{}", midSizeForBuyBase*0.1, p2);
+        log.info("sell base/quote size:{}, price:{}", quoteSellSize*0.1, p3);
+        log.info("sell quote/mid size:{}, price:{}", midSizeFormSellQuote*0.1, p1);
+
+        CurrencyPair quoteMid = new CurrencyPair(this.quoteCur, this.midCur);
+        CurrencyPair baseQuote = new CurrencyPair(this.baseCur, this.quoteCur);
+        CurrencyPair baseMid = new CurrencyPair(this.baseCur, this.midCur);
+
+        OrderBookPrice baseMidOrderBookPrice = new OrderBookPrice();
+        baseMidOrderBookPrice.setBuy(p2);
+        baseMidOrderBookPrice.setBuyAmount((float)( midSizeForBuyBase*0.1));
+        baseMidOrderBookPrice.setCurrencyPair(baseMid.toString());
+
+        OrderBookPrice quoteMidOrderBookPrice = new OrderBookPrice();
+        quoteMidOrderBookPrice.setSell(p1);
+        quoteMidOrderBookPrice.setSellAmount((float)( quoteSellSize*0.1));
+        quoteMidOrderBookPrice.setCurrencyPair(quoteMid.toString());
+
+        OrderBookPrice baseQuoteOrderBookPrice = new OrderBookPrice();
+        quoteMidOrderBookPrice.setSell(p3);
+        quoteMidOrderBookPrice.setSellAmount((float)( midSizeFormSellQuote*0.1));
+        quoteMidOrderBookPrice.setCurrencyPair(baseQuote.toString());
+
+
         float arbitrageValue = midSizeFormSellQuote - midSizeForBuyBase;
 
         float arbitragePecentage = arbitrageValue / midSizeForBuyBase;
@@ -206,6 +222,10 @@ public class TrianglePair {
         arbitrage.setArbitrage(arbitrageValue);
         arbitrage.setPecentage(arbitragePecentage);
         arbitrage.setType(Arbitrage.TYPE_NEG);
+
+        arbitrage.setBaseMidOrderBookPrice(baseMidOrderBookPrice);
+        arbitrage.setBaseQuoteOrderBookPrice(baseQuoteOrderBookPrice);
+        arbitrage.setQuoteMidOrderBookPrice(quoteMidOrderBookPrice);
 
         return arbitrage;
     }
@@ -279,14 +299,43 @@ public class TrianglePair {
         // 卖出 marketBuySize 个 base 获得 mid 的数量
         float midSizeFromSellBase = marketBuySize * p2 * (1 - base_mid_fee);
 
+        log.info("buy quote/mid size:{}, price:{}", midSizeForBuyQuote*0.1, p1);
+        log.info("buy base/quote size:{}, price:{}", marketBuySize*0.1, p3);
+        log.info("sell base/mid size:{}, price:{}", midSizeFromSellBase*0.1, p2);
+
+        CurrencyPair quoteMid = new CurrencyPair(this.quoteCur, this.midCur);
+        CurrencyPair baseQuote = new CurrencyPair(this.baseCur, this.quoteCur);
+        CurrencyPair baseMid = new CurrencyPair(this.baseCur, this.midCur);
+
+        OrderBookPrice quoteMidOrderBookPrice = new OrderBookPrice();
+        quoteMidOrderBookPrice.setBuy(p1);
+        quoteMidOrderBookPrice.setBuyAmount((float)( midSizeForBuyQuote*0.1));
+        quoteMidOrderBookPrice.setCurrencyPair(quoteMid.toString());
+
+        OrderBookPrice baseQuoteOrderBookPrice = new OrderBookPrice();
+        baseQuoteOrderBookPrice.setBuy(p3);
+        baseQuoteOrderBookPrice.setBuyAmount((float)( marketBuySize*0.1));
+        baseQuoteOrderBookPrice.setCurrencyPair(baseQuote.toString());
+
+        OrderBookPrice baseMidOrderBookPrice = new OrderBookPrice();
+        baseMidOrderBookPrice.setSell(p3);
+        baseMidOrderBookPrice.setSellAmount((float)( midSizeFromSellBase*0.1));
+        baseMidOrderBookPrice.setCurrencyPair(baseMid.toString());
+
+
         float arbitrageValue = midSizeFromSellBase - midSizeForBuyQuote;
 
         float arbitragePecentage = arbitrageValue / midSizeForBuyQuote;
+
+
 
         Arbitrage arbitrage = new Arbitrage();
         arbitrage.setArbitrage(arbitrageValue);
         arbitrage.setPecentage(arbitragePecentage);
         arbitrage.setType(Arbitrage.TYPE_POS);
+        arbitrage.setBaseMidOrderBookPrice(baseMidOrderBookPrice);
+        arbitrage.setBaseQuoteOrderBookPrice(baseQuoteOrderBookPrice);
+        arbitrage.setQuoteMidOrderBookPrice(quoteMidOrderBookPrice);
 
         return arbitrage;
     }
