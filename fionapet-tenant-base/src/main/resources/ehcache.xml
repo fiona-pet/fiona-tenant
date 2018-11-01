@@ -2,10 +2,10 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
          updateCheck="false">
     <diskStore path="java.io.tmpdir/Tmp_EhCache" />
-    <defaultCache eternal="false" maxElementsInMemory="1000" overflowToDisk="false" diskPersistent="false"
-                  timeToIdleSeconds="0" timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU" />
+    <defaultCache eternal="false" maxElementsInMemory="100" overflowToDisk="false" diskPersistent="false"
+                  timeToIdleSeconds="10" timeToLiveSeconds="10" memoryStoreEvictionPolicy="LRU" />
 
     <cache name="demo" eternal="false" maxElementsInMemory="100" overflowToDisk="false" diskPersistent="false"
-           timeToIdleSeconds="5" timeToLiveSeconds="10" memoryStoreEvictionPolicy="LRU" />
+           timeToIdleSeconds="10" timeToLiveSeconds="10" memoryStoreEvictionPolicy="LRU" />
 
 </ehcache>
