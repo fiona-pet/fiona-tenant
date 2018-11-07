@@ -83,7 +83,7 @@ public class ExchangeListener {
                 getOrderBook(exchange.getInstanceName(), triangleCurrency.getQuoteMidPair());
 
 
-        OrderBookPrice quoteMidOrderBookPrice = toOrderBookPrice(triangleCurrency.getBaseMidPair(), quoteMidPairOrderBook);
+        OrderBookPrice quoteMidOrderBookPrice = toOrderBookPrice(triangleCurrency.getQuoteMidPair(), quoteMidPairOrderBook);
 
         triangleCurrency.setQuoteMidOrderBookPrice(quoteMidOrderBookPrice);
 

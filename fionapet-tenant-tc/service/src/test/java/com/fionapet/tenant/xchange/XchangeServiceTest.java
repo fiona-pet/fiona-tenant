@@ -130,4 +130,39 @@ public class XchangeServiceTest {
 
     }
 
+
+    @Test
+    public void testDataCurrency(){
+        TriangleCurrency triangleCurrency = new TriangleCurrency();
+        OrderBookPrice bq = new OrderBookPrice();
+
+
+        bq.setAsk(BigDecimal.valueOf(0.00851172f));
+
+        bq.setBid(BigDecimal.valueOf(0.00849f));
+        bq.setCurrencyPair("LTC/BTC");
+
+        triangleCurrency.setBaseQuoteOrderBookPrice(bq);
+
+        OrderBookPrice bm = new OrderBookPrice();
+
+        bm.setBid(BigDecimal.valueOf(55.35f));
+
+        bm.setAsk(BigDecimal.valueOf(55.47f));
+        bm.setCurrencyPair("LTC/USD");
+
+        triangleCurrency.setBaseMidOrderBookPrice(bm);
+
+        OrderBookPrice qm = new OrderBookPrice();
+
+        qm.setAsk(BigDecimal.valueOf(1.14309f));
+        qm.setCurrencyPair("EUR/USD");
+
+        triangleCurrency.setQuoteMidOrderBookPrice(qm);
+
+        log.info("posCyclePrice:{}, negCyclePrice:{}", triangleCurrency.posCyclePrice(), triangleCurrency.negCyclePrice());
+
+    }
+
+
 } 

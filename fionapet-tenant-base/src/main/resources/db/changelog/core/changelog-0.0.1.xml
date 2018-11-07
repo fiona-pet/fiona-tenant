@@ -216,10 +216,10 @@
 			</column>
 
 			<column name="arbitrage_log_id" type="bigint"/>
-			<column name="buy" type="float"/>
-			<column name="buy_amount" type="float"/>
-			<column name="sell" type="float"/>
-			<column name="sell_amount" type="float"/>
+			<column name="bid" type="float"/>
+			<column name="bid_amount" type="float"/>
+			<column name="ask" type="float"/>
+			<column name="ask_amount" type="float"/>
 			<column name="currency_pair" type="varchar(128)"/>
 
 			<column name="created_date" type="datetime"/>
