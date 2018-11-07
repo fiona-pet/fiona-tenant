@@ -1,54 +1,127 @@
 package com.fionapet.tenant.listener;
 
-import com.fionapet.tenant.tc.entity.Arbitrage;
-import com.fionapet.tenant.tc.entity.ArbitrageLog;
-import com.fionapet.tenant.tc.entity.OrderBookPrice;
-import com.fionapet.tenant.tc.entity.TrianglePair;
-import lombok.Getter;
-import lombok.Setter;
+import com.fionapet.tenant.tc.entity.*;
+import com.fionapet.tenant.tc.service.ArbitrageLogService;
+import com.fionapet.tenant.tc.service.OrderBookPriceService;
+import com.fionapet.tenant.xchange.XchangeService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEvent;
+import org.knowm.xchange.bitstamp.dto.account.BitstampBalance;
+import org.knowm.xchange.bitstamp.dto.trade.BitstampOrder;
+import org.knowm.xchange.dto.trade.LimitOrder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Slf4j
 @Component
 @EnableAsync
 public class PlaceOrderListener {
+
+    @Autowired
+    ArbitrageLogService arbitrageLogService;
+
+    @Autowired
+    OrderBookPriceService orderBookPriceService;
+
+    @Autowired
+    XchangeService xchangeService;
+
     @EventListener
     @Async
     public void placeOrder(PlaceOrderEvent placeOrderEvent) {
-        String arbitrageType = placeOrderEvent.getArbitrageType();
+        Exchange exchange = placeOrderEvent.getExchange();
+        TriangleCurrency triangleCurrency = placeOrderEvent.getTriangleCurrency();
 
-        /**
-         * p1
-         */
-         OrderBookPrice quoteMidOrderBookPrice = placeOrderEvent.getQuoteMidOrderBookPrice();
-        /**
-         * p2
-         */
-         OrderBookPrice baseQuoteOrderBookPrice = placeOrderEvent.getBaseQuoteOrderBookPrice();
-        /**
-         * p3
-         */
-         OrderBookPrice baseMidOrderBookPrice = placeOrderEvent.getBaseMidOrderBookPrice();
+        ArbitrageLog arbitrageLog = new ArbitrageLog(triangleCurrency);
+        if (triangleCurrency.posCyclePrice() > 0) {
 
-        try {
-            if (Arbitrage.TYPE_NEG.equals(arbitrageType)){
-                log.info("buy base/mid size:{}, price:{}", baseMidOrderBookPrice.getBuyAmount(), baseMidOrderBookPrice.getBuy());
-                log.info("sell base/quote size:{}, price:{}", baseQuoteOrderBookPrice.getSellAmount(), baseQuoteOrderBookPrice.getSell());
-                log.info("sell quote/mid size:{}, price:{}", quoteMidOrderBookPrice.getSellAmount(), quoteMidOrderBookPrice.getSell());
-            }else if (Arbitrage.TYPE_POS.equals(arbitrageType)){
-                log.info("buy quote/mid size:{}, price:{}", quoteMidOrderBookPrice.getBuyAmount(), quoteMidOrderBookPrice.getBuy());
-                log.info("buy base/quote size:{}, price:{}", baseQuoteOrderBookPrice.getBuyAmount(), baseQuoteOrderBookPrice.getBuy());
-                log.info("sell base/mid size:{}, price:{}", baseMidOrderBookPrice.getSellAmount(), baseMidOrderBookPrice.getSell());
+            //TODO 实际成交
+            BigDecimal qSize = BigDecimal.valueOf(Math.min(
+                    triangleCurrency.getBaseQuoteOrderBookPrice().getBidAmount().doubleValue(),
+                    triangleCurrency.getQuoteMidOrderBookPrice().getAskAmount().doubleValue()));
+
+            if (qSize.doubleValue() > 0.001){
+                qSize = BigDecimal.valueOf(0.001);
             }
 
-        } finally {
+            // q/m buy qSize q
+            LimitOrder limitOrder = xchangeService.buy(exchange.getInstanceName(), qSize,
+                                                    triangleCurrency.getQuoteMidPair(),
+                                                    triangleCurrency.getQuoteMidOrderBookPrice().getAsk());
+            if (null == limitOrder){
+                return;
+            }
 
+            int retry = 0;
+            while(retry < 3){
+                retry++;
 
+                BitstampBalance.Balance qBalance = xchangeService.getBalance(exchange.getInstanceName(), triangleCurrency.getQuoteCur().getDisplayName());
+
+                if (qBalance.getAvailable().doubleValue() <= 0d){
+                    continue;
+                }
+
+                // b/q sell qSize
+                BitstampOrder bqOrder =  xchangeService.sell(exchange.getInstanceName(), qBalance.getAvailable(),
+                                    triangleCurrency.getBaseQuotePair(),
+                                    triangleCurrency.getBaseQuoteOrderBookPrice().getBid());
+                if (null != bqOrder) {
+
+                    // 账号中 b 的数量
+                    BitstampBalance.Balance
+                            bBalance =
+                            xchangeService.getBalance(exchange.getInstanceName(),
+                                                      triangleCurrency.getBaseCur()
+                                                              .getDisplayName());
+
+                    if (bBalance.getAvailable().doubleValue() <= 0d) {
+                        continue;
+                    }
+
+                    // b/m sell
+                    xchangeService
+                            .sell(exchange.getInstanceName(), bBalance.getAvailable(),
+                                  triangleCurrency.getBaseMidPair(),
+                                  triangleCurrency.getBaseMidOrderBookPrice().getBid());
+                }
+
+                if (retry==3){
+                    break;
+                }
+            }
+
+            //TODO 取消订单
+
+            arbitrageLog.setPecentage(triangleCurrency.posCyclePrice());
+            arbitrageLog.setArbitrage(triangleCurrency.posCyclePrice());
+            arbitrageLog.setType(Arbitrage.TYPE_POS);
+            arbitrageLog.setExchangeId(exchange.getId());
+
+            saveData(arbitrageLog, triangleCurrency);
+        } else if (triangleCurrency.negCyclePrice() > 0) {
+            arbitrageLog.setPecentage(triangleCurrency.negCyclePrice());
+            arbitrageLog.setArbitrage(triangleCurrency.negCyclePrice());
+            arbitrageLog.setType(Arbitrage.TYPE_NEG);
+            arbitrageLog.setExchangeId(exchange.getId());
+
+            saveData(arbitrageLog, triangleCurrency);
         }
+    }
+
+    private void saveData(ArbitrageLog arbitrageLog, TriangleCurrency triangleCurrency) {
+        arbitrageLogService.save(arbitrageLog);
+
+        triangleCurrency.getBaseQuoteOrderBookPrice().setArbitrageLogId(arbitrageLog.getId());
+        triangleCurrency.getBaseMidOrderBookPrice().setArbitrageLogId(arbitrageLog.getId());
+        triangleCurrency.getQuoteMidOrderBookPrice().setArbitrageLogId(arbitrageLog.getId());
+
+        orderBookPriceService.save(triangleCurrency.getBaseQuoteOrderBookPrice());
+        orderBookPriceService.save(triangleCurrency.getBaseMidOrderBookPrice());
+        orderBookPriceService.save(triangleCurrency.getQuoteMidOrderBookPrice());
     }
 }

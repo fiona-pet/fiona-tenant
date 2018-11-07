@@ -1,14 +1,16 @@
 package com.fionapet.tenant.xchange;
 
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
-import com.fionapet.tenant.tc.entity.TrianglePair;
+import com.fionapet.tenant.tc.entity.TriangleCurrency;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.bitstamp.BitstampAuthenticatedV2;
 import org.knowm.xchange.bitstamp.BitstampExchange;
+import org.knowm.xchange.bitstamp.dto.account.BitstampBalance;
 import org.knowm.xchange.bitstamp.dto.trade.BitstampOrder;
+import org.knowm.xchange.bitstamp.service.BitstampAccountServiceRaw;
 import org.knowm.xchange.bitstamp.service.BitstampTradeServiceRaw;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -24,7 +26,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -52,12 +57,17 @@ public class XchangeService {
         return topOneOrderBook;
     }
 
-    public OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair) throws Exception {
+    public OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair){
         Exchange exchange = ExchangeFactory.INSTANCE.createExchange(instanceName);
 
         MarketDataService marketDataService = exchange.getMarketDataService();
 
-        OrderBook orderBook = marketDataService.getOrderBook(currencyPair);
+        OrderBook orderBook = null;
+        try {
+            orderBook = marketDataService.getOrderBook(currencyPair);
+        } catch (Exception e) {
+            log.debug("getOrderBook error!", e.getMessage());
+        }
 
         return orderBook;
     }
@@ -93,7 +103,7 @@ public class XchangeService {
      * @param limitPrice     挂单价格
      * @return 挂单信息
      */
-    public LimitOrder bid(String instanceName, BigDecimal originalAmount,
+    public LimitOrder buy(String instanceName, BigDecimal originalAmount,
                           CurrencyPair currencyPair, BigDecimal limitPrice) {
         try {
             Exchange exchange = create(instanceName);
@@ -118,7 +128,7 @@ public class XchangeService {
 
             return limitOrder;
         } catch (Exception e) {
-            log.warn("LimitOrder bid", e);
+            log.warn("LimitOrder buy", e);
         }
         return null;
     }
@@ -173,81 +183,81 @@ public class XchangeService {
     /**
      * 获取 币对组合
      */
-    public List<TrianglePair> grenCurrencyPair(final Currency mid,
-                                               List<CurrencyPair> currencyPairs) {
+    public Set<TriangleCurrency> grenCurrencyPair(final Currency mid,
+                                                   final List<CurrencyPair> currencyPairs) {
         //找到 所有以 base 为定价币的 币对
         List<CurrencyPair> hasBase = currencyPairs.stream().filter(new Predicate<CurrencyPair>() {
             @Override
             public boolean test(CurrencyPair currencyPair) {
-                return currencyPair.counter == mid;
+                return currencyPair.counter.equals(mid);
             }
         }).collect(Collectors.toList());
 
         log.debug("hasBase:{}", hasBase);
 
-        List<TrianglePair> trianglePairs = new ArrayList<>();
+        Set<TriangleCurrency> triangleCurrencies = new HashSet<>();
 
         for (int i = 0; i < hasBase.size(); i++) {
             for (int j = i + 1; j < hasBase.size(); j++) {
-                TrianglePair trianglePair = new TrianglePair();
+                TriangleCurrency triangleCurrency = new TriangleCurrency();
 
                 CurrencyPair p1 = hasBase.get(i);
                 CurrencyPair p2 = hasBase.get(j);
 
-                trianglePair.setBaseCur(p1.base);
-                trianglePair.setQuoteCur(p2.base);
-                trianglePair.setMidCur(p1.counter);
+                triangleCurrency.setBaseCur(p1.base);
+                triangleCurrency.setQuoteCur(p2.base);
+                triangleCurrency.setMidCur(mid);
 
-                TrianglePair trianglePair2 = new TrianglePair();
-
-                trianglePair2.setBaseCur(p2.base);
-                trianglePair2.setQuoteCur(p1.base);
-                trianglePair2.setMidCur(p1.counter);
-
-                if (hasCurrencyPair(trianglePair, currencyPairs)) {
-                    trianglePairs.add(trianglePair);
+                if (hasCurrencyPair(triangleCurrency, currencyPairs)) {
+                    triangleCurrencies.add(triangleCurrency);
                 }
 
-                if (hasCurrencyPair(trianglePair2, currencyPairs)) {
-                    trianglePairs.add(trianglePair2);
+                TriangleCurrency triangleCurrency2 = new TriangleCurrency();
+                triangleCurrency2.setBaseCur(p2.base);
+                triangleCurrency2.setQuoteCur(p1.base);
+                triangleCurrency2.setMidCur(mid);
+
+                if (hasCurrencyPair(triangleCurrency2, currencyPairs)) {
+                    triangleCurrencies.add(triangleCurrency2);
                 }
             }
         }
 
-        return trianglePairs;
+        return triangleCurrencies;
     }
 
-    private boolean hasCurrencyPair(final TrianglePair trianglePair,
-                                    List<CurrencyPair> currencyPairs) {
+    private boolean hasCurrencyPair(final TriangleCurrency triangleCurrency, List<CurrencyPair> currencyPairs) {
         List<CurrencyPair> hasBase = currencyPairs.stream().filter(new Predicate<CurrencyPair>() {
             @Override
             public boolean test(CurrencyPair currencyPair) {
-                return currencyPair.base == trianglePair.getBaseCur();
+                return currencyPair.base == triangleCurrency.getBaseCur();
             }
         }).collect(Collectors.toList());
 
         List<CurrencyPair> hasQuote = hasBase.stream().filter(new Predicate<CurrencyPair>() {
             @Override
             public boolean test(CurrencyPair currencyPair) {
-                return currencyPair.counter == trianglePair.getQuoteCur();
+                return currencyPair.counter == triangleCurrency.getQuoteCur();
             }
         }).collect(Collectors.toList());
+
 
         return hasQuote.size() == 1;
     }
 
+    public BitstampBalance.Balance getBalance(String instanceName, final String currency) {
+        Exchange exchange = create(instanceName);
 
-    public TopOneOrderBook toTopOneOrderBook(OrderBook orderBook) {
-        TopOneOrderBook topOneOrderBook = new TopOneOrderBook();
+        BitstampAccountServiceRaw accountService = (BitstampAccountServiceRaw)exchange.getAccountService();
 
-        topOneOrderBook.setBidPrice(orderBook.getBids().get(0).getLimitPrice().floatValue());
-        topOneOrderBook.setBidRemainingAmount(
-                orderBook.getBids().get(0).getRemainingAmount().floatValue());
+        try {
 
-        topOneOrderBook.setAskPrice(orderBook.getAsks().get(0).getLimitPrice().floatValue());
-        topOneOrderBook.setAskRemainingAmount(
-                orderBook.getAsks().get(0).getRemainingAmount().floatValue());
+            Collection<BitstampBalance.Balance> balances = accountService.getBitstampBalance().getBalances();
+            return balances.stream().filter(balance -> currency.toLowerCase().equals(balance.getCurrency())).findFirst().get();
 
-        return topOneOrderBook;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -1,9 +1,6 @@
 package com.fionapet.tenant.listener;
 
-import com.fionapet.tenant.tc.entity.Arbitrage;
-import com.fionapet.tenant.tc.entity.ArbitrageLog;
-import com.fionapet.tenant.tc.entity.Exchange;
-import com.fionapet.tenant.tc.entity.TrianglePair;
+import com.fionapet.tenant.tc.entity.*;
 import com.fionapet.tenant.tc.service.ArbitrageLogService;
 import com.fionapet.tenant.tc.service.TopOneOrderBookService;
 import com.fionapet.tenant.xchange.XchangeService;
@@ -38,53 +35,75 @@ public class ExchangeListener {
     @Async
     public void exchange(ExchangeEvent exchangeEvent) {
         Exchange exchange = exchangeEvent.getExchange();
-        TrianglePair trianglePair = exchangeEvent.getTrianglePair();
+        TriangleCurrency triangleCurrency = exchangeEvent.getTriangleCurrency();
 
-        if (!updateTrianglePairData(exchange, trianglePair)) {
-            return;
+        if (updateTrianglePairData(exchange, triangleCurrency)) {
+
+            PlaceOrderEvent placeOrderEvent = new PlaceOrderEvent(this, exchange, triangleCurrency);
+
+            applicationContext
+                    .publishEvent(placeOrderEvent);
         }
-
-        applicationContext
-                .publishEvent(
-                        new ArbitrageEvent(this, exchange,
-                                          trianglePair,Arbitrage.TYPE_POS));
-        applicationContext
-                .publishEvent(
-                        new ArbitrageEvent(this, exchange,
-                                           trianglePair,Arbitrage.TYPE_NEG));
-
     }
 
     /**
      * 更新 币对 盘口 数据
+     *
      * @param exchange
-     * @param trianglePair
+     * @param triangleCurrency
      * @return
      */
-    private boolean updateTrianglePairData(Exchange exchange, final TrianglePair trianglePair) {
+    private boolean updateTrianglePairData(Exchange exchange, final TriangleCurrency triangleCurrency) {
         OrderBook
                 baseQuotePairOrderBook =
-                getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getBaseCur(), trianglePair.getQuoteCur()));
+                getOrderBook(exchange.getInstanceName(), triangleCurrency.getBaseQuotePair());
 
         if (null == baseQuotePairOrderBook) {
             return false;
         }
 
-        trianglePair.setMarketPriceOrderBook(baseQuotePairOrderBook);
+        OrderBookPrice baseQuoteOrderBookPrice = toOrderBookPrice(triangleCurrency.getBaseQuotePair(), baseQuotePairOrderBook);
+
+        if (null == baseQuoteOrderBookPrice){
+            return false;
+        }
+
+        triangleCurrency.setBaseQuoteOrderBookPrice(baseQuoteOrderBookPrice);
 
         OrderBook
                 baseMidPairOrderBook =
-                getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getBaseCur(), trianglePair.getMidCur()));
+                getOrderBook(exchange.getInstanceName(), triangleCurrency.getBaseMidPair());
 
-        trianglePair.setBaseMidPriceOrderBook(baseMidPairOrderBook);
+        OrderBookPrice baseMidOrderBookPrice = toOrderBookPrice(triangleCurrency.getBaseMidPair(), baseMidPairOrderBook);
+
+        triangleCurrency.setBaseMidOrderBookPrice(baseMidOrderBookPrice);
 
         OrderBook
                 quoteMidPairOrderBook =
-                getOrderBook(exchange.getInstanceName(), new CurrencyPair(trianglePair.getQuoteCur(), trianglePair.getMidCur()));
+                getOrderBook(exchange.getInstanceName(), triangleCurrency.getQuoteMidPair());
 
-        trianglePair.setQuoteMidPriceOrderBook(quoteMidPairOrderBook);
+
+        OrderBookPrice quoteMidOrderBookPrice = toOrderBookPrice(triangleCurrency.getBaseMidPair(), quoteMidPairOrderBook);
+
+        triangleCurrency.setQuoteMidOrderBookPrice(quoteMidOrderBookPrice);
 
         return true;
+    }
+
+    private OrderBookPrice toOrderBookPrice(CurrencyPair currencyPair, OrderBook orderBook) {
+        OrderBookPrice orderBookPrice = new OrderBookPrice();
+
+        if (null == orderBook){
+            return null;
+        }
+
+        orderBookPrice.setBid(orderBook.getBids().get(0).getLimitPrice());
+        orderBookPrice.setBidAmount(orderBook.getBids().get(0).getRemainingAmount());
+        orderBookPrice.setAsk(orderBook.getAsks().get(0).getLimitPrice());
+        orderBookPrice.setAskAmount(orderBook.getAsks().get(0).getRemainingAmount());
+        orderBookPrice.setCurrencyPair(currencyPair.toString());
+
+        return orderBookPrice;
     }
 
 

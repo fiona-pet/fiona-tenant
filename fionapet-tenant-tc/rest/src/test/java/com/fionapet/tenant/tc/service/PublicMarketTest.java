@@ -79,7 +79,7 @@ public class PublicMarketTest {
 //        }
 //    }
 
-    // bid price是买家愿意支付的最高价格,还有很多价格,不过都低于这个最高价位。 ask price是卖家出的最低价格
+    // buy price是买家愿意支付的最高价格,还有很多价格,不过都低于这个最高价位。 ask price是卖家出的最低价格
         @Test
     public void arbitrage() throws IOException {
         // P3 = ltc_btc_sell1_price*(1+ltc_btc_slippage)

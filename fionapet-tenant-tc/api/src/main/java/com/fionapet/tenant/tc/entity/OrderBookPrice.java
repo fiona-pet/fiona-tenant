@@ -7,6 +7,8 @@ import lombok.Setter;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,20 +26,9 @@ public class OrderBookPrice extends AbstractAuditableEntity {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
     private Long arbitrageLogId;
-    private float buy;
-    private float buyAmount;
-    private float sell;
-    private float sellAmount;
+    private BigDecimal bid = new BigDecimal("0");
+    private BigDecimal bidAmount = new BigDecimal("0");
+    private BigDecimal ask = new BigDecimal("0");
+    private BigDecimal askAmount = new BigDecimal("0");
     private String currencyPair;
-
-    public OrderBookPrice(OrderBook orderBook, CurrencyPair type) {
-        this.buy = orderBook.getBids().get(0).getLimitPrice().floatValue();
-        this.buyAmount = orderBook.getBids().get(0).getRemainingAmount().floatValue();
-        this.sell = orderBook.getAsks().get(0).getLimitPrice().floatValue();
-        this.sellAmount = orderBook.getAsks().get(0).getRemainingAmount().floatValue();
-        this.currencyPair = type.toString();
-    }
-
-    public OrderBookPrice() {
-    }
 }

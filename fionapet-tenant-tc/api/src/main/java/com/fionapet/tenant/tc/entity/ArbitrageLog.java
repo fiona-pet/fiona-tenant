@@ -63,10 +63,10 @@ public class ArbitrageLog extends AbstractAuditableEntity {
      */
     private String type;
 
-    public ArbitrageLog(TrianglePair trianglePair) {
-        this.midCur = trianglePair.getMidCur().toString();
-        this.quoteCur = trianglePair.getQuoteCur().toString();
-        this.baseCur = trianglePair.getBaseCur().toString();
+    public ArbitrageLog(TriangleCurrency triangleCurrency) {
+        this.midCur = triangleCurrency.getMidCur().toString();
+        this.quoteCur = triangleCurrency.getQuoteCur().toString();
+        this.baseCur = triangleCurrency.getBaseCur().toString();
     }
 
     public ArbitrageLog() {

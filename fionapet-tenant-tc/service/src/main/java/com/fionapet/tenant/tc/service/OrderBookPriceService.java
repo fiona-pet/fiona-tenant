@@ -1,8 +1,6 @@
 package com.fionapet.tenant.tc.service;
 
-import com.fionapet.tenant.tc.entity.ArbitrageLog;
 import com.fionapet.tenant.tc.entity.OrderBookPrice;
-import com.fionapet.tenant.tc.repository.ArbitrageLogRepository;
 import com.fionapet.tenant.tc.repository.OrderBookPriceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderBookPriceService {
-
     private static final Logger log = LoggerFactory.getLogger(OrderBookPriceService.class);
 
     @Autowired

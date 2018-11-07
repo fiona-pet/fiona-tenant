@@ -1,12 +1,10 @@
 package com.fionapet.tenant.tc.task;
 
-import com.fionapet.tenant.listener.ArbitrageListener;
 import com.fionapet.tenant.listener.ExchangeEvent;
 import com.fionapet.tenant.tc.entity.Exchange;
-import com.fionapet.tenant.tc.entity.TrianglePair;
+import com.fionapet.tenant.tc.entity.TriangleCurrency;
 import com.fionapet.tenant.tc.service.ArbitrageLogService;
 import com.fionapet.tenant.tc.service.ExchangeService;
-import com.fionapet.tenant.tc.service.TrianglePairCacheService;
 import com.fionapet.tenant.xchange.XchangeService;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.Currency;
@@ -15,13 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @EnableScheduling
@@ -44,10 +41,6 @@ public class ExchangeSymbolsTask {
     @Autowired
     ArbitrageLogService arbitrageLogService;
 
-    @Autowired
-    TrianglePairCacheService trianglePairCacheService;
-
-
 
     @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
 //    @Async
@@ -67,21 +60,18 @@ public class ExchangeSymbolsTask {
                             currencyPairs =
                             xchangeService.getExchangeSymbols(exchange.getInstanceName());
 
-                    List<TrianglePair>
+                    Set<TriangleCurrency>
                             trianglePairs =
                             xchangeService.grenCurrencyPair(Currency.USD, currencyPairs);
 
-                    trianglePairs.stream().forEach(new Consumer<TrianglePair>() {
+                    trianglePairs.stream().forEach(new Consumer<TriangleCurrency>() {
                         @Override
-                        public void accept(TrianglePair trianglePair) {
-
-                            if (null == trianglePairCacheService.getTrianglePair(trianglePair.getKey())) {
-                                trianglePairCacheService.putTrianglePair(trianglePair);
+                        public void accept(TriangleCurrency triangleCurrency) {
                                 applicationContext
                                         .publishEvent(
                                                 new ExchangeEvent(this, exchange,
-                                                                  trianglePair));
-                            }
+                                                        triangleCurrency));
+
                         }
                     });
 

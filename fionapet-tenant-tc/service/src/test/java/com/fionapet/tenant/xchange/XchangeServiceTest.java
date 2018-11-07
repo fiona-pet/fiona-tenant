@@ -1,18 +1,19 @@
 package com.fionapet.tenant.xchange;
 
+import com.fionapet.tenant.tc.entity.OrderBookPrice;
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
-import com.fionapet.tenant.tc.entity.TrianglePair;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.Before;
-import org.junit.After;
-import com.fionapet.tenant.multitenant.TenantContextHolder;
+import com.fionapet.tenant.tc.entity.TriangleCurrency;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.knowm.xchange.bitstamp.dto.account.BitstampBalance;
+import org.knowm.xchange.bitstamp.dto.trade.BitstampOrder;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
-import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -20,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 /**
  * XchangeService Tester.
@@ -75,23 +77,57 @@ public class XchangeServiceTest {
     public void testGrenCurrencyPair() throws Exception {
         List<CurrencyPair> currencyPairList = xchangeService.getExchangeSymbols(instanceName);
 
-        List<TrianglePair> trianglePairs = xchangeService.grenCurrencyPair(Currency.USDT, currencyPairList);
+        Set<TriangleCurrency> trianglePairs = xchangeService.grenCurrencyPair(Currency.USD, currencyPairList);
 
-        log.debug("trianglePairs:{}" , trianglePairs);
+        log.info("trianglePairs:{}" , trianglePairs);
     }
 
     @Test
     public void testBuy() throws IOException {
-        xchangeService.bid(instanceName, new BigDecimal(".001"), CurrencyPair.BTC_USD, new BigDecimal("6727"));
+        xchangeService.buy(instanceName, new BigDecimal(".001"), CurrencyPair.BTC_USD, new BigDecimal("6727"));
 
         log.info("open orders:{}", xchangeService.getOpenOrders(instanceName));
     }
 
     @Test
     public void testSell() throws IOException {
-        xchangeService.sell(instanceName, new BigDecimal(".001"), CurrencyPair.BTC_USD, new BigDecimal("6740"));
+        BitstampOrder bitstampOrder = xchangeService.sell(instanceName, new BigDecimal(".001"), CurrencyPair.BTC_USD, new BigDecimal("6740"));
 
-        log.info("open orders:{}", xchangeService.getOpenOrders(instanceName));
+        log.info("open orders:{}, order:{}", xchangeService.getOpenOrders(instanceName), bitstampOrder);
+    }
+
+    @Test
+    public void testGetBalance(){
+       BitstampBalance.Balance balance = xchangeService.getBalance(instanceName, "BTC");
+       log.info("balance:{}", balance);
+    }
+    @Test
+    public void testCurrency(){
+        TriangleCurrency triangleCurrency = new TriangleCurrency();
+        OrderBookPrice bq = new OrderBookPrice();
+
+
+        bq.setAsk(BigDecimal.valueOf(0.42488f));
+        bq.setCurrencyPair("XRP/EUR");
+
+        triangleCurrency.setBaseQuoteOrderBookPrice(bq);
+
+        OrderBookPrice bm = new OrderBookPrice();
+
+        bm.setBid(BigDecimal.valueOf(0.49f));
+        bm.setCurrencyPair("XRP/USD");
+
+        triangleCurrency.setBaseMidOrderBookPrice(bm);
+
+        OrderBookPrice qm = new OrderBookPrice();
+
+        qm.setAsk(BigDecimal.valueOf(1.14309f));
+        qm.setCurrencyPair("EUR/USD");
+
+        triangleCurrency.setQuoteMidOrderBookPrice(qm);
+
+        log.info("posCyclePrice:{}, negCyclePrice:{}", triangleCurrency.posCyclePrice(), triangleCurrency.negCyclePrice());
+
     }
 
 } 
