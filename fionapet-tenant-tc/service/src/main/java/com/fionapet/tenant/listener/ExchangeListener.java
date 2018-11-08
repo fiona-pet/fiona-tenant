@@ -74,7 +74,15 @@ public class ExchangeListener {
                 baseMidPairOrderBook =
                 getOrderBook(exchange.getInstanceName(), triangleCurrency.getBaseMidPair());
 
+        if (null == baseMidPairOrderBook) {
+            return false;
+        }
+
         OrderBookPrice baseMidOrderBookPrice = toOrderBookPrice(triangleCurrency.getBaseMidPair(), baseMidPairOrderBook);
+
+        if (null == baseMidOrderBookPrice) {
+            return false;
+        }
 
         triangleCurrency.setBaseMidOrderBookPrice(baseMidOrderBookPrice);
 
