@@ -21,9 +21,9 @@ public class TriangleCurrency {
     public static final float base_mid_slippage = 0.00f;
     public static final float quote_mid_slippage = 0.00f;
 
-    public static final float base_quote_fee = 0.001f;  //# 设定手续费比例
-    public static final float base_mid_fee = 0.001f;
-    public static final float quote_mid_fee = 0.001f;
+    public static final float base_quote_fee = 0.0025f;  //# 设定手续费比例
+    public static final float base_mid_fee = 0.0025f;
+    public static final float quote_mid_fee = 0.0025f;
 
     /**
      * 定价资产

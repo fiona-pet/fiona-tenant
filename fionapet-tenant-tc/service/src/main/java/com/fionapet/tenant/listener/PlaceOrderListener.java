@@ -40,60 +40,60 @@ public class PlaceOrderListener {
         if (triangleCurrency.posCyclePrice() > 0) {
 
             //TODO 实际成交
-//            BigDecimal qSize = BigDecimal.valueOf(Math.min(
-//                    triangleCurrency.getBaseQuoteOrderBookPrice().getBidAmount().doubleValue(),
-//                    triangleCurrency.getQuoteMidOrderBookPrice().getAskAmount().doubleValue()));
-//
-//            if (qSize.doubleValue() > 0.001){
-//                qSize = BigDecimal.valueOf(0.001);
-//            }
-//
-//            // q/m buy qSize q
-//            LimitOrder limitOrder = xchangeService.buy(exchange.getInstanceName(), qSize,
-//                                                    triangleCurrency.getQuoteMidPair(),
-//                                                    triangleCurrency.getQuoteMidOrderBookPrice().getAsk());
-//            if (null == limitOrder){
-//                return;
-//            }
-//
-//            int retry = 0;
-//            while(retry < 3){
-//                retry++;
-//
-//                BitstampBalance.Balance qBalance = xchangeService.getBalance(exchange.getInstanceName(), triangleCurrency.getQuoteCur().getDisplayName());
-//
-//                if (qBalance.getAvailable().doubleValue() <= 0d){
-//                    continue;
-//                }
-//
-//                // b/q sell qSize
-//                BitstampOrder bqOrder =  xchangeService.sell(exchange.getInstanceName(), qBalance.getAvailable(),
-//                                    triangleCurrency.getBaseQuotePair(),
-//                                    triangleCurrency.getBaseQuoteOrderBookPrice().getBid());
-//                if (null != bqOrder) {
-//
-//                    // 账号中 b 的数量
-//                    BitstampBalance.Balance
-//                            bBalance =
-//                            xchangeService.getBalance(exchange.getInstanceName(),
-//                                                      triangleCurrency.getBaseCur()
-//                                                              .getDisplayName());
-//
-//                    if (bBalance.getAvailable().doubleValue() <= 0d) {
-//                        continue;
-//                    }
-//
-//                    // b/m sell
-//                    xchangeService
-//                            .sell(exchange.getInstanceName(), bBalance.getAvailable(),
-//                                  triangleCurrency.getBaseMidPair(),
-//                                  triangleCurrency.getBaseMidOrderBookPrice().getBid());
-//                }
-//
-//                if (retry==3){
-//                    break;
-//                }
-//            }
+            BigDecimal qSize = BigDecimal.valueOf(Math.min(
+                    triangleCurrency.getBaseQuoteOrderBookPrice().getBidAmount().doubleValue(),
+                    triangleCurrency.getQuoteMidOrderBookPrice().getAskAmount().doubleValue()));
+
+            if (qSize.doubleValue() * triangleCurrency.getQuoteMidOrderBookPrice().getAsk().doubleValue() > 100){
+                qSize = BigDecimal.valueOf(100/triangleCurrency.getQuoteMidOrderBookPrice().getAsk().doubleValue());
+            }
+
+            // q/m buy qSize q
+            LimitOrder limitOrder = xchangeService.buy(exchange.getInstanceName(), qSize,
+                                                    triangleCurrency.getQuoteMidPair(),
+                                                    triangleCurrency.getQuoteMidOrderBookPrice().getAsk());
+            if (null == limitOrder){
+                return;
+            }
+
+            int retry = 0;
+            while(retry < 3){
+                retry++;
+
+                BitstampBalance.Balance qBalance = xchangeService.getBalance(exchange.getInstanceName(), triangleCurrency.getQuoteCur().getDisplayName());
+
+                if (qBalance.getAvailable().doubleValue() <= 0d){
+                    continue;
+                }
+
+                // b/q sell qSize
+                BitstampOrder bqOrder =  xchangeService.sell(exchange.getInstanceName(), qBalance.getAvailable(),
+                                    triangleCurrency.getBaseQuotePair(),
+                                    triangleCurrency.getBaseQuoteOrderBookPrice().getBid());
+                if (null != bqOrder) {
+
+                    // 账号中 b 的数量
+                    BitstampBalance.Balance
+                            bBalance =
+                            xchangeService.getBalance(exchange.getInstanceName(),
+                                                      triangleCurrency.getBaseCur()
+                                                              .getDisplayName());
+
+                    if (bBalance.getAvailable().doubleValue() <= 0d) {
+                        continue;
+                    }
+
+                    // b/m sell
+                    xchangeService
+                            .sell(exchange.getInstanceName(), bBalance.getAvailable(),
+                                  triangleCurrency.getBaseMidPair(),
+                                  triangleCurrency.getBaseMidOrderBookPrice().getBid());
+                }
+
+                if (retry==3){
+                    break;
+                }
+            }
 
             //TODO 取消订单
 

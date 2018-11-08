@@ -155,8 +155,10 @@ public class XchangeServiceTest {
 
         OrderBookPrice qm = new OrderBookPrice();
 
-        qm.setAsk(BigDecimal.valueOf(1.14309f));
-        qm.setCurrencyPair("EUR/USD");
+        qm.setAsk(BigDecimal.valueOf(6519.52f));
+        qm.setBid(BigDecimal.valueOf(6517.35f));
+
+        qm.setCurrencyPair("BTC/USD");
 
         triangleCurrency.setQuoteMidOrderBookPrice(qm);
 
