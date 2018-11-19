@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -42,7 +43,7 @@ public class ExchangeSymbolsTask {
     ArbitrageLogService arbitrageLogService;
 
 
-    @Scheduled(cron = "0/5 * * * * ?") //每5秒执行一次
+    @Scheduled(cron = "0/2 * * * * ?") //每5秒执行一次
 //    @Async
     public void grenCurrencyPair() {
 
