@@ -3,6 +3,7 @@ package com.fionapet.tenant.xchange;
 import com.fionapet.tenant.tc.entity.OrderBookPrice;
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
 import com.fionapet.tenant.tc.entity.TriangleCurrency;
+import com.fionapet.tenant.tc.service.OrderBookPriceService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,6 +38,9 @@ public class XchangeServiceTest {
 
     @Autowired
     XchangeService xchangeService;
+
+    @Autowired
+    OrderBookPriceService orderBookPriceService;
 
     String instanceName = "org.knowm.xchange.bitstamp.BitstampExchange";
 
@@ -101,6 +105,18 @@ public class XchangeServiceTest {
        BitstampBalance.Balance balance = xchangeService.getBalance(instanceName, "BTC");
        log.info("balance:{}", balance);
     }
+
+
+    @Test
+    public void testOrder(){
+        TriangleCurrency triangleCurrency = orderBookPriceService.getByArbitrageLogId(4758809l);
+        Assert.assertTrue(triangleCurrency.negCyclePrice() > 0);
+
+        //
+
+    }
+
+
     @Test
     public void testCurrency(){
         TriangleCurrency triangleCurrency = new TriangleCurrency();
