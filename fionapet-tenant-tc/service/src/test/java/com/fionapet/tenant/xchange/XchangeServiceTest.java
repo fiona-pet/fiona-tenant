@@ -15,6 +15,7 @@ import org.knowm.xchange.bitstamp.dto.trade.BitstampOrder;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.exceptions.ExchangeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -108,11 +109,77 @@ public class XchangeServiceTest {
 
 
     @Test
-    public void testOrder(){
-        TriangleCurrency triangleCurrency = orderBookPriceService.getByArbitrageLogId(4758809l);
+    public void testNegOrder() throws InterruptedException {
+        final TriangleCurrency triangleCurrency = orderBookPriceService.getByArbitrageLogId(4758809l);
         Assert.assertTrue(triangleCurrency.negCyclePrice() > 0);
 
-        //
+        // p3(s) - p1(b)/p2(s) (b/q - (b/m)/(q/m)) 逆链
+
+        // p3 下卖单
+        double bqSize = triangleCurrency.getBaseQuoteOrderBookPrice().getBidAmount().doubleValue();
+        double bmSize = triangleCurrency.getQuoteMidOrderBookPrice().getAskAmount().doubleValue();
+        double bqOrderSize = Math.floor(Math.min(bqSize, bmSize) * 10000)/10000;
+
+        log.info("p3: {} sell -> p: {}, s: {}, bqOrderSize:{}", triangleCurrency.getBaseQuoteOrderBookPrice().getCurrencyPair(), triangleCurrency.getBaseQuoteOrderBookPrice().getBid(), triangleCurrency.getBaseQuoteOrderBookPrice().getBidAmount(),bqOrderSize);
+
+        String orderResult = "";
+        BitstampOrder bitstampOrder = null;
+        try {
+            bitstampOrder =
+                    xchangeService.sell(instanceName, BigDecimal.valueOf(bqOrderSize), new CurrencyPair(triangleCurrency.getBaseQuoteOrderBookPrice().getCurrencyPair()), triangleCurrency.getBaseQuoteOrderBookPrice().getBid());
+        }catch (ExchangeException e){
+            orderResult = e.getMessage();
+            log.warn("sell error!", e);
+        }catch (IOException e) {
+            orderResult = e.getMessage();
+            log.warn("sell error!", e);
+        }
+
+        log.info("p3: {} sell -> p: {}, s: {}, bqOrderSize:{}, res:{}, errorMessage:{}", triangleCurrency.getBaseQuoteOrderBookPrice().getCurrencyPair(), triangleCurrency.getBaseQuoteOrderBookPrice().getBid(), triangleCurrency.getBaseQuoteOrderBookPrice().getBidAmount(),bqOrderSize, bitstampOrder, orderResult);
+
+
+        // 同时 p1 b/m 下买单 p2 下卖单
+        log.info("{} buy -> p: {}, s: {} , res:{}", triangleCurrency.getBaseMidOrderBookPrice().getCurrencyPair(), triangleCurrency.getQuoteMidOrderBookPrice().getAsk(), triangleCurrency.getQuoteMidOrderBookPrice().getAskAmount(), "order res");
+        log.info("{} sell -> p: {}, s: {} , res:{}", triangleCurrency.getQuoteMidOrderBookPrice().getCurrencyPair(), triangleCurrency.getQuoteMidOrderBookPrice().getBid(), triangleCurrency.getQuoteMidOrderBookPrice().getBidAmount(), "order res");
+
+
+//
+//
+//        // 监听 p1 p3 成交情况 监听 账户存量 监听当前行情 行情消失 回滚 p1
+//        log.info("{} buy -> p: {}, s: {} , res:{}", triangleCurrency.getBaseMidOrderBookPrice().getCurrencyPair(), triangleCurrency.getBaseMidOrderBookPrice().getAsk(), triangleCurrency.getBaseMidOrderBookPrice().getAskAmount(), "order res");
+//
+//
+//        // 同时  p3 下买  p2 下卖单
+//        Thread t3 = new Thread(){
+//            @Override
+//            public void run() {
+//                // 监听 p1 成交情况 监听 账户存量 监听当前行情 行情消失 回滚 p1
+//                log.info("{} sell -> p: {}, s: {} , res:{}", triangleCurrency.getBaseQuoteOrderBookPrice().getCurrencyPair(), triangleCurrency.getBaseQuoteOrderBookPrice().getAsk(), triangleCurrency.getBaseQuoteOrderBookPrice().getAskAmount(), "order res");
+//            }
+//        };
+//
+//        // 同时  p3 下买  p2 下卖单
+//        Thread t1 = new Thread(){
+//            @Override
+//            public void run() {
+//                // p2 下买单
+//                log.info("{} sell -> p: {}, s: {} , res:{}", triangleCurrency.getQuoteMidOrderBookPrice().getCurrencyPair(), triangleCurrency.getQuoteMidOrderBookPrice().getAsk(), triangleCurrency.getQuoteMidOrderBookPrice().getAskAmount(), "order res");
+//            }
+//        };
+//        t3.start();
+//        t1.start();
+//
+//
+//        t3.join();
+//        t1.join();
+
+        // p2->p1 正链
+        // p2 下买单
+        // 同时 p3 下卖单 p1 下卖单
+
+
+        //p1 生成订单号
+        //关注交易成功  或 账号 余额是否够用 如果够用启动交易
 
     }
 

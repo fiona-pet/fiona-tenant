@@ -18,6 +18,7 @@ import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
+import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
@@ -57,7 +58,7 @@ public class XchangeService {
         return topOneOrderBook;
     }
 
-    public OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair){
+    public OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair) {
         Exchange exchange = ExchangeFactory.INSTANCE.createExchange(instanceName);
 
         MarketDataService marketDataService = exchange.getMarketDataService();
@@ -88,8 +89,8 @@ public class XchangeService {
     private Exchange create(String instanceName) {
         ExchangeSpecification exSpec = new BitstampExchange().getDefaultExchangeSpecification();
         exSpec.setUserName("rkrh7895");
-        exSpec.setApiKey("4PY9FR49f0IZA8sRSVk12ygLDMj0Ensq");
-        exSpec.setSecretKey("H78k4khdm7cXQwKz7gHjIwpWs9bXLu9P");
+        exSpec.setApiKey("P4EaXyAPntmlZyQTSYPZs8jFr7uZRIL9");
+        exSpec.setSecretKey("phjQYI025Na1CAyFxxFtwBtFfLTo0eRF");
 
         return ExchangeFactory.INSTANCE.createExchange(exSpec);
     }
@@ -135,29 +136,27 @@ public class XchangeService {
 
 
     public BitstampOrder sell(String instanceName, BigDecimal originalAmount,
-                              CurrencyPair currencyPair, BigDecimal limitPrice) {
+                              CurrencyPair currencyPair, BigDecimal limitPrice) throws
+                                                                                ExchangeException,
+                                                                                IOException {
 
-        try {
-            Exchange exchange = create(instanceName);
+        Exchange exchange = create(instanceName);
 
-            BitstampTradeServiceRaw tradeService =
-                    (BitstampTradeServiceRaw) exchange.getTradeService();
+        BitstampTradeServiceRaw tradeService =
+                (BitstampTradeServiceRaw) exchange.getTradeService();
 
-            log.info("account:{}", exchange.getAccountService().getAccountInfo());
+        log.info("account:{}", exchange.getAccountService().getAccountInfo());
 
-            // place a limit sell order
-            BitstampOrder order =
-                    tradeService.placeBitstampOrder(
-                            currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount,
-                            limitPrice);
+        // place a limit sell order
+        BitstampOrder order =
+                tradeService.placeBitstampOrder(
+                        currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount,
+                        limitPrice);
 
-            log.info("BitstampOrder Order return value:{}", order);
+        log.info("BitstampOrder Order return value:{}", order);
 
-            return order;
-        } catch (Exception e) {
-            log.warn("BitstampOrder sell", e);
-        }
-        return null;
+        return order;
+
     }
 
     /**
@@ -184,7 +183,7 @@ public class XchangeService {
      * 获取 币对组合
      */
     public Set<TriangleCurrency> grenCurrencyPair(final Currency mid,
-                                                   final List<CurrencyPair> currencyPairs) {
+                                                  final List<CurrencyPair> currencyPairs) {
         //找到 所有以 base 为定价币的 币对
         List<CurrencyPair> hasBase = currencyPairs.stream().filter(new Predicate<CurrencyPair>() {
             @Override
@@ -226,7 +225,8 @@ public class XchangeService {
         return triangleCurrencies;
     }
 
-    private boolean hasCurrencyPair(final TriangleCurrency triangleCurrency, List<CurrencyPair> currencyPairs) {
+    private boolean hasCurrencyPair(final TriangleCurrency triangleCurrency,
+                                    List<CurrencyPair> currencyPairs) {
         List<CurrencyPair> hasBase = currencyPairs.stream().filter(new Predicate<CurrencyPair>() {
             @Override
             public boolean test(CurrencyPair currencyPair) {
@@ -241,19 +241,24 @@ public class XchangeService {
             }
         }).collect(Collectors.toList());
 
-
         return hasQuote.size() == 1;
     }
 
     public BitstampBalance.Balance getBalance(String instanceName, final String currency) {
         Exchange exchange = create(instanceName);
 
-        BitstampAccountServiceRaw accountService = (BitstampAccountServiceRaw)exchange.getAccountService();
+        BitstampAccountServiceRaw
+                accountService =
+                (BitstampAccountServiceRaw) exchange.getAccountService();
 
         try {
 
-            Collection<BitstampBalance.Balance> balances = accountService.getBitstampBalance().getBalances();
-            return balances.stream().filter(balance -> currency.toLowerCase().equals(balance.getCurrency())).findFirst().get();
+            Collection<BitstampBalance.Balance>
+                    balances =
+                    accountService.getBitstampBalance().getBalances();
+            return balances.stream()
+                    .filter(balance -> currency.toLowerCase().equals(balance.getCurrency()))
+                    .findFirst().get();
 
         } catch (IOException e) {
             e.printStackTrace();
