@@ -124,7 +124,7 @@ public class XchangeServiceTest {
         float maxUsd = 50;
         final TriangleCurrency
                 triangleCurrency =
-                orderBookPriceService.getByArbitrageLogId(4758809l);
+                orderBookPriceService.getByArbitrageLogId(21733l);
 
         Assert.assertTrue(triangleCurrency.negCyclePrice() > 0);
 
@@ -145,7 +145,7 @@ public class XchangeServiceTest {
         bmOrderSize =
                 BigDecimal
                         .valueOf(Math.min(maxUsd / bmPrice.floatValue(), bmOrderSize.floatValue()))
-                        .setScale(2, RoundingMode.UP);
+                        .setScale(6, RoundingMode.UP);
 
         log.info("p1: {} buy -> p: {}, s: {}, bmOrderSize:{}",
                  triangleCurrency.getBaseMidOrderBookPrice().getCurrencyPair(),
@@ -252,8 +252,8 @@ public class XchangeServiceTest {
                 BitstampOrder
                         bitstampOrder =
                         xchangeService.sell(instanceName, BigDecimal.valueOf(orderSize)
-                                                    .setScale(2, RoundingMode.UP), currencyPair,
-                                            BigDecimal.valueOf(price).setScale(7, RoundingMode.UP));
+                                                    .setScale(6, RoundingMode.UP), currencyPair,
+                                            BigDecimal.valueOf(price).setScale(6, RoundingMode.UP));
 
                 BitstampOrderStatusResponse bitstampOrderStatusResponse = null;
 
@@ -272,7 +272,7 @@ public class XchangeServiceTest {
                 if (BitstampOrderStatus.Finished != bitstampOrderStatusResponse.getStatus()) {
                     xchangeService.cancel(instanceName, bitstampOrder.getId() + "");
                     xchangeService.sell(instanceName,
-                                        BigDecimal.valueOf(orderSize).setScale(2, RoundingMode.UP),
+                                        BigDecimal.valueOf(orderSize).setScale(6, RoundingMode.UP),
                                         currencyPair);
                 }
 

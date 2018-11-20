@@ -139,7 +139,7 @@ public class PlaceOrderListener {
         bmOrderSize =
                 BigDecimal
                         .valueOf(Math.min(maxUsd / bmPrice.floatValue(), bmOrderSize.floatValue()))
-                        .setScale(2, RoundingMode.UP);
+                        .setScale(2, RoundingMode.DOWN);
 
         log.info("p1: {} buy -> p: {}, s: {}, bmOrderSize:{}",
                  triangleCurrency.getBaseMidOrderBookPrice().getCurrencyPair(),
@@ -155,7 +155,7 @@ public class PlaceOrderListener {
                             ,
                                        new CurrencyPair(triangleCurrency.getBaseMidOrderBookPrice()
                                                                 .getCurrencyPair()),
-                                       bmPrice);
+                                       bmPrice.setScale(2, RoundingMode.DOWN));
         } catch (IOException e) {
             bmOrderResult = e.getMessage();
             log.warn("bm buy error!", e);
@@ -249,13 +249,13 @@ public class PlaceOrderListener {
                 BitstampOrder
                         bitstampOrder =
                         xchangeService.sell(exchange.getInstanceName(), BigDecimal.valueOf(orderSize)
-                                                    .setScale(2, RoundingMode.UP), currencyPair,
-                                            BigDecimal.valueOf(price).setScale(7, RoundingMode.UP));
+                                                    .setScale(2, RoundingMode.DOWN), currencyPair,
+                                            BigDecimal.valueOf(price).setScale(2, RoundingMode.UP));
 
                 BitstampOrderStatusResponse bitstampOrderStatusResponse = null;
 
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(1000);
                     bitstampOrderStatusResponse =
                             xchangeService.getOrder(exchange.getInstanceName(), bitstampOrder.getId() + "");
                 } catch (Exception e) {
