@@ -2,12 +2,12 @@ package com.fionapet.tenant.listener;
 
 import com.fionapet.tenant.tc.entity.*;
 import com.fionapet.tenant.tc.service.ArbitrageLogService;
-import com.fionapet.tenant.tc.service.OrderBookPriceService;
 import com.fionapet.tenant.xchange.XchangeService;
 import lombok.extern.slf4j.Slf4j;
-import org.knowm.xchange.bitstamp.dto.account.BitstampBalance;
 import org.knowm.xchange.bitstamp.dto.trade.BitstampOrder;
-import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.bitstamp.dto.trade.BitstampOrderStatus;
+import org.knowm.xchange.bitstamp.dto.trade.BitstampOrderStatusResponse;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
@@ -15,7 +15,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Slf4j
 @Component
@@ -106,7 +108,179 @@ public class PlaceOrderListener {
         } else if (triangleCurrency.negCyclePrice() > 0) {
             // TODO neg
             log.warn("has neg:{}", "TODO");
+            try {
+                negOrder(exchange, triangleCurrency);
+            } catch (InterruptedException e) {
+                log.warn("negOrder", e);
+            }
 
+        }
+    }
+
+    public void negOrder(Exchange exchange, TriangleCurrency
+            triangleCurrency) throws InterruptedException {
+        float off = 1f;
+        float maxUsd = 50;
+
+        // p3(s) - p1(b)/p2(s) (b/q - (b/m)/(q/m)) 逆链
+
+        // p1 b/m 下买单
+        double bqSize = triangleCurrency.getBaseQuoteOrderBookPrice().getBidAmount().doubleValue();
+        double bmSize = triangleCurrency.getBaseMidOrderBookPrice().getAskAmount().doubleValue();
+        BigDecimal
+                bmOrderSize =
+                BigDecimal.valueOf(Math.floor(Math.min(bqSize, bmSize) * 10000) / 10000);
+
+        BigDecimal
+                bmPrice =
+                BigDecimal.valueOf(
+                        triangleCurrency.getBaseMidOrderBookPrice().getAsk().floatValue() * off);
+
+        bmOrderSize =
+                BigDecimal
+                        .valueOf(Math.min(maxUsd / bmPrice.floatValue(), bmOrderSize.floatValue()))
+                        .setScale(2, RoundingMode.UP);
+
+        log.info("p1: {} buy -> p: {}, s: {}, bmOrderSize:{}",
+                 triangleCurrency.getBaseMidOrderBookPrice().getCurrencyPair(),
+                 bmPrice,
+                 triangleCurrency.getBaseMidOrderBookPrice().getAskAmount(), bmOrderSize);
+
+        String bmOrderResult = "";
+        String
+                bmOrderId = null;
+        try {
+            bmOrderId =
+                    xchangeService.buy(exchange.getInstanceName(), bmOrderSize
+                            ,
+                                       new CurrencyPair(triangleCurrency.getBaseMidOrderBookPrice()
+                                                                .getCurrencyPair()),
+                                       bmPrice);
+        } catch (IOException e) {
+            bmOrderResult = e.getMessage();
+            log.warn("bm buy error!", e);
+        }
+
+        log.info("p1: {} buy -> p: {}, s: {}, bmOrderSize:{}, res:{}, errorMessage:{}",
+                 triangleCurrency.getBaseMidOrderBookPrice().getCurrencyPair(),
+                 bmPrice,
+                 triangleCurrency.getBaseMidOrderBookPrice().getAskAmount(), bmOrderSize,
+                 bmOrderId, bmOrderResult);
+
+        BitstampOrderStatusResponse bitstampOrderStatusResponse = null;
+
+        try {
+            Thread.sleep(200);
+            bitstampOrderStatusResponse = xchangeService.getOrder(exchange.getInstanceName(), bmOrderId);
+        } catch (IOException e) {
+            log.warn("bm buy error!", e);
+        }
+
+        if (null == bitstampOrderStatusResponse) {
+            return;
+        }
+
+        if (BitstampOrderStatus.Finished == bitstampOrderStatusResponse.getStatus()) {
+            BigDecimal
+                    bqPrice =
+                    BigDecimal.valueOf(
+                            triangleCurrency.getBaseQuoteOrderBookPrice().getBid().floatValue()
+                            * off);
+
+            // p3
+            SellThread
+                    p3 =
+                    new SellThread(exchange,"p3", bmOrderSize.floatValue(), bqPrice.floatValue(), bmOrderId,
+                                   new CurrencyPair(triangleCurrency.getBaseQuoteOrderBookPrice()
+                                                            .getCurrencyPair()));
+            p3.start();
+
+            // p2
+            float qmSize = bmOrderSize.floatValue() * bqPrice.floatValue();
+            float
+                    qmPrice =
+                    triangleCurrency.getQuoteMidOrderBookPrice().getBid().floatValue() * off;
+
+            SellThread
+                    p2 =
+                    new SellThread(exchange,"p2", qmSize, qmPrice, bmOrderId, new CurrencyPair(
+                            triangleCurrency.getQuoteMidOrderBookPrice().getCurrencyPair()));
+            p2.start();
+
+            p3.join();
+            p2.join();
+        } else {
+            try {
+                xchangeService.cancel(exchange.getInstanceName(), bmOrderId);
+            } catch (IOException e) {
+                log.warn("bm cancel error!", e);
+            }
+        }
+
+    }
+
+    class SellThread extends Thread {
+
+        private float orderSize;
+        private float price;
+        private String orderId;
+        private CurrencyPair currencyPair;
+        private Exchange exchange;
+
+        public SellThread(Exchange exchange, String name,
+                          float orderSize, float price, String orderId,
+                          CurrencyPair currencyPair) {
+            super(name + ":" + orderId);
+            this.orderSize = orderSize;
+            this.price = price;
+            this.orderId = orderId;
+            this.currencyPair = currencyPair;
+            this.exchange = exchange;
+        }
+
+        @Override
+        public void run() {
+            try {
+                log.info("{} -> {} sell -> p: {}, orderSize:{}", this.getName(),
+                         currencyPair,
+                         price,
+                         orderSize, 0);
+
+                BitstampOrder
+                        bitstampOrder =
+                        xchangeService.sell(exchange.getInstanceName(), BigDecimal.valueOf(orderSize)
+                                                    .setScale(2, RoundingMode.UP), currencyPair,
+                                            BigDecimal.valueOf(price).setScale(7, RoundingMode.UP));
+
+                BitstampOrderStatusResponse bitstampOrderStatusResponse = null;
+
+                try {
+                    Thread.sleep(200);
+                    bitstampOrderStatusResponse =
+                            xchangeService.getOrder(exchange.getInstanceName(), bitstampOrder.getId() + "");
+                } catch (Exception e) {
+                    log.warn("bm buy error!", e);
+                }
+
+                if (null == bitstampOrderStatusResponse) {
+                    return;
+                }
+
+                if (BitstampOrderStatus.Finished != bitstampOrderStatusResponse.getStatus()) {
+                    xchangeService.cancel(exchange.getInstanceName(), bitstampOrder.getId() + "");
+                    xchangeService.sell(exchange.getInstanceName(),
+                                        BigDecimal.valueOf(orderSize).setScale(2, RoundingMode.UP),
+                                        currencyPair);
+                }
+
+                log.info("{} -> {} sell -> p: {}, orderSize:{}, orderResult:{}", this.getName(),
+                         currencyPair,
+                         price,
+                         orderSize, bitstampOrder);
+
+            } catch (IOException e) {
+                log.warn("sell error!", e);
+            }
         }
     }
 

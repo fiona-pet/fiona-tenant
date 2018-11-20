@@ -10,6 +10,7 @@ import org.knowm.xchange.bitstamp.BitstampAuthenticatedV2;
 import org.knowm.xchange.bitstamp.BitstampExchange;
 import org.knowm.xchange.bitstamp.dto.account.BitstampBalance;
 import org.knowm.xchange.bitstamp.dto.trade.BitstampOrder;
+import org.knowm.xchange.bitstamp.dto.trade.BitstampOrderStatusResponse;
 import org.knowm.xchange.bitstamp.service.BitstampAccountServiceRaw;
 import org.knowm.xchange.bitstamp.service.BitstampTradeServiceRaw;
 import org.knowm.xchange.currency.Currency;
@@ -104,36 +105,55 @@ public class XchangeService {
      * @param limitPrice     挂单价格
      * @return 挂单信息
      */
-    public LimitOrder buy(String instanceName, BigDecimal originalAmount,
-                          CurrencyPair currencyPair, BigDecimal limitPrice) {
-        try {
-            Exchange exchange = create(instanceName);
+    public String buy(String instanceName, BigDecimal originalAmount,
+                          CurrencyPair currencyPair, BigDecimal limitPrice) throws IOException {
+        Exchange exchange = create(instanceName);
 
-            TradeService tradeService = exchange.getTradeService();
+        TradeService tradeService = exchange.getTradeService();
 
-            log.info("account:{}", exchange.getAccountService().getAccountInfo());
+        log.info("account:{}", exchange.getAccountService().getAccountInfo());
 
-            // place a limit buy order
-            LimitOrder limitOrder =
-                    new LimitOrder(
-                            (Order.OrderType.BID),
-                            originalAmount,
-                            currencyPair,
-                            null,
-                            null,
-                            limitPrice);
+        // place a limit buy order
+        LimitOrder limitOrder =
+                new LimitOrder(
+                        (Order.OrderType.BID),
+                        originalAmount,
+                        currencyPair,
+                        null,
+                        null,
+                        limitPrice);
 
-            String limitOrderReturnValue = tradeService.placeLimitOrder(limitOrder);
+        String limitOrderReturnValue = tradeService.placeLimitOrder(limitOrder);
 
-            log.info("Limit Order return value:{}, object:{}", limitOrderReturnValue, limitOrder);
 
-            return limitOrder;
-        } catch (Exception e) {
-            log.warn("LimitOrder buy", e);
-        }
-        return null;
+        log.info("Limit Order return value:{}, object:{}", limitOrderReturnValue, limitOrder);
+
+        return limitOrderReturnValue;
+
     }
 
+    public BitstampOrder sell(String instanceName, BigDecimal originalAmount,
+                              CurrencyPair currencyPair) throws
+                                                                                ExchangeException,
+                                                                                IOException {
+
+        Exchange exchange = create(instanceName);
+
+        BitstampTradeServiceRaw tradeService =
+                (BitstampTradeServiceRaw) exchange.getTradeService();
+
+        log.info("account:{}", exchange.getAccountService().getAccountInfo());
+
+        // place a limit sell order
+        BitstampOrder order =
+                tradeService.placeBitstampMarketOrder(
+                        currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount);
+
+        log.info("BitstampOrder Order return value:{}", order);
+
+        return order;
+
+    }
 
     public BitstampOrder sell(String instanceName, BigDecimal originalAmount,
                               CurrencyPair currencyPair, BigDecimal limitPrice) throws
@@ -159,6 +179,15 @@ public class XchangeService {
 
     }
 
+    public boolean cancel(String instanceName, String id) throws IOException {
+        Exchange exchange = create(instanceName);
+
+        BitstampTradeServiceRaw tradeService =
+                (BitstampTradeServiceRaw) exchange.getTradeService();
+
+        return tradeService.cancelBitstampOrder(Long.parseLong(id));
+    }
+
     /**
      * 获取订单
      */
@@ -171,9 +200,26 @@ public class XchangeService {
 
         OpenOrdersParams openOrdersParamsAll = tradeService.createOpenOrdersParams();
 
+
         OpenOrders openOrders = tradeService.getOpenOrders(openOrdersParamsAll);
 
         log.debug("Trade Open Orders for {}: {}", openOrders);
+
+        return openOrders;
+    }
+
+    /**
+     * 获取订单
+     */
+    public BitstampOrderStatusResponse getOrder(String instanceName, String id)
+            throws IOException {
+
+        Exchange exchange = create(instanceName);
+
+        BitstampTradeServiceRaw tradeService =
+                (BitstampTradeServiceRaw) exchange.getTradeService();
+
+        BitstampOrderStatusResponse openOrders = tradeService.getBitstampOrder(Long.parseLong(id));
 
         return openOrders;
     }
