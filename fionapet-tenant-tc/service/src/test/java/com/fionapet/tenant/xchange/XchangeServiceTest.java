@@ -109,6 +109,7 @@ public class XchangeServiceTest {
 
         log.info("open orders:{}, order:{}", xchangeService.getOpenOrders(instanceName),
                  bitstampOrder);
+        log.info(xchangeService.printStopWatch());
     }
 
     @Test

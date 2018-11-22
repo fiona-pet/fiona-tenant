@@ -170,7 +170,7 @@ public class PlaceOrderListener {
         BitstampOrderStatusResponse bitstampOrderStatusResponse = null;
 
         try {
-            Thread.sleep(200);
+            Thread.sleep(400);
             bitstampOrderStatusResponse = xchangeService.getOrder(exchange.getInstanceName(), bmOrderId);
         } catch (IOException e) {
             log.warn("bm buy error!", e);
@@ -217,6 +217,8 @@ public class PlaceOrderListener {
             }
         }
 
+        log.info(xchangeService.printStopWatch());
+
     }
 
     class SellThread extends Thread {
@@ -255,7 +257,7 @@ public class PlaceOrderListener {
                 BitstampOrderStatusResponse bitstampOrderStatusResponse = null;
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(400);
                     bitstampOrderStatusResponse =
                             xchangeService.getOrder(exchange.getInstanceName(), bitstampOrder.getId() + "");
                 } catch (Exception e) {

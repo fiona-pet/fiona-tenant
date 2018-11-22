@@ -2,6 +2,7 @@ package com.fionapet.tenant.xchange;
 
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
 import com.fionapet.tenant.tc.entity.TriangleCurrency;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
@@ -24,6 +25,7 @@ import org.knowm.xchange.service.marketdata.MarketDataService;
 import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -37,7 +39,17 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Setter
 public class XchangeService {
+    StopWatch stopWatch = new StopWatch();
+
+    public String printStopWatch(){
+        String res = stopWatch.prettyPrint();
+        if (stopWatch.getTaskInfo().length > 10){
+            stopWatch = new StopWatch();
+        }
+        return res;
+    }
 
     /**
      * 订单 信息
@@ -66,7 +78,9 @@ public class XchangeService {
 
         OrderBook orderBook = null;
         try {
+            stopWatch.start("读取行情");
             orderBook = marketDataService.getOrderBook(currencyPair);
+            stopWatch.stop();
         } catch (Exception e) {
             log.debug("getOrderBook error!", e.getMessage());
         }
@@ -123,8 +137,10 @@ public class XchangeService {
                         null,
                         limitPrice);
 
-        String limitOrderReturnValue = tradeService.placeLimitOrder(limitOrder);
 
+        stopWatch.start("下买单");
+        String limitOrderReturnValue = tradeService.placeLimitOrder(limitOrder);
+        stopWatch.stop();
 
         log.info("Limit Order return value:{}, object:{}", limitOrderReturnValue, limitOrder);
 
@@ -145,10 +161,11 @@ public class XchangeService {
         log.info("account:{}", exchange.getAccountService().getAccountInfo());
 
         // place a limit sell order
+        stopWatch.start("下卖单");
         BitstampOrder order =
                 tradeService.placeBitstampMarketOrder(
                         currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount);
-
+        stopWatch.stop();
         log.info("BitstampOrder Order return value:{}", order);
 
         return order;
@@ -168,10 +185,12 @@ public class XchangeService {
         log.info("account:{}", exchange.getAccountService().getAccountInfo());
 
         // place a limit sell order
+        stopWatch.start("下卖单(市场)");
         BitstampOrder order =
                 tradeService.placeBitstampOrder(
                         currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount,
                         limitPrice);
+        stopWatch.stop();
 
         log.info("BitstampOrder Order return value:{}", order);
 
@@ -181,9 +200,10 @@ public class XchangeService {
 
     public boolean cancel(String instanceName, String id) throws IOException {
         Exchange exchange = create(instanceName);
-
+        stopWatch.start("取消");
         BitstampTradeServiceRaw tradeService =
                 (BitstampTradeServiceRaw) exchange.getTradeService();
+        stopWatch.stop();
 
         return tradeService.cancelBitstampOrder(Long.parseLong(id));
     }
@@ -218,9 +238,9 @@ public class XchangeService {
 
         BitstampTradeServiceRaw tradeService =
                 (BitstampTradeServiceRaw) exchange.getTradeService();
-
+        stopWatch.start("查询订单");
         BitstampOrderStatusResponse openOrders = tradeService.getBitstampOrder(Long.parseLong(id));
-
+        stopWatch.stop();
         return openOrders;
     }
 

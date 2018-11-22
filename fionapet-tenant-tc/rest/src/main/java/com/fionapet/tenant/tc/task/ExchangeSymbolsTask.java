@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import java.util.List;
 import java.util.Set;
@@ -56,6 +57,7 @@ public class ExchangeSymbolsTask {
 
                 arbitrageLogService.clean(exchange.getId());
 
+
                 try {
                     List<CurrencyPair>
                             currencyPairs =
@@ -80,6 +82,8 @@ public class ExchangeSymbolsTask {
                 } catch (Exception e) {
                     log.debug("{} 获取数据异常", exchange);
                 }
+
+                log.info(xchangeService.printStopWatch());
             }
         });
     }
