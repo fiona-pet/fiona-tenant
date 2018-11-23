@@ -44,8 +44,14 @@ public class XchangeService {
     StopWatch stopWatch = new StopWatch();
 
     public String printStopWatch(){
-        String res = stopWatch.prettyPrint();
-        if (stopWatch.getTaskInfo().length > 10){
+        String res = "";
+        try{
+            res = stopWatch.prettyPrint();
+
+            if (stopWatch.getTaskInfo().length > 10){
+                stopWatch = new StopWatch();
+            }
+        }finally {
             stopWatch = new StopWatch();
         }
         return res;

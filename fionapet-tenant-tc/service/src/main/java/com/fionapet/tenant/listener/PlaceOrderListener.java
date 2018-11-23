@@ -156,6 +156,20 @@ public class PlaceOrderListener {
                                        new CurrencyPair(triangleCurrency.getBaseMidOrderBookPrice()
                                                                 .getCurrencyPair()),
                                        bmPrice.setScale(2, RoundingMode.DOWN));
+
+            BigDecimal
+                    bqPrice =
+                    BigDecimal.valueOf(
+                            triangleCurrency.getBaseQuoteOrderBookPrice().getBid().floatValue()
+                            * off);
+
+            // p3
+            SellThread
+                    p3 =
+                    new SellThread(exchange,"p3", bmOrderSize.floatValue(), bqPrice.floatValue(), bmOrderId,
+                                   new CurrencyPair(triangleCurrency.getBaseQuoteOrderBookPrice()
+                                                            .getCurrencyPair()));
+            p3.start();
         } catch (IOException e) {
             bmOrderResult = e.getMessage();
             log.warn("bm buy error!", e);
@@ -172,6 +186,7 @@ public class PlaceOrderListener {
         try {
             Thread.sleep(400);
             bitstampOrderStatusResponse = xchangeService.getOrder(exchange.getInstanceName(), bmOrderId);
+
         } catch (IOException e) {
             log.warn("bm buy error!", e);
         }
