@@ -66,7 +66,7 @@ public class ExchangeSymbolsTask {
 
                     Set<TriangleCurrency>
                             trianglePairs =
-                            xchangeService.grenCurrencyPair(Currency.USD, currencyPairs);
+                            xchangeService.grenCurrencyPair(TriangleCurrency.ARBITRAGE_CUR, currencyPairs);
 
                     trianglePairs.stream().forEach(new Consumer<TriangleCurrency>() {
                         @Override

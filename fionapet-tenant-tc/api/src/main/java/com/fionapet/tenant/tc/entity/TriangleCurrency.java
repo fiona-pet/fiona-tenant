@@ -25,6 +25,10 @@ public class TriangleCurrency {
     public static final float base_mid_fee = 0.0025f;
     public static final float quote_mid_fee = 0.0025f;
 
+    public static final Currency ARBITRAGE_CUR = Currency.USDT;
+
+
+
     /**
      * 定价资产
      */

@@ -48,7 +48,7 @@ public class XchangeServiceTest {
     @Autowired
     OrderBookPriceService orderBookPriceService;
 
-    String instanceName = "org.knowm.xchange.bitstamp.BitstampExchange";
+    String instanceName = "org.knowm.xchange.binance.BinanceExchange";
 
     @Before
     public void before() throws Exception {
@@ -76,7 +76,7 @@ public class XchangeServiceTest {
     public void testGetExchangeSymbols() throws Exception {
         List<CurrencyPair> currencyPairList = xchangeService.getExchangeSymbols(instanceName);
 
-        log.debug("currencyPairList:{}", currencyPairList);
+        log.info("currencyPairList:{}", currencyPairList);
 
         Assert.assertTrue(currencyPairList.size() > 0);
     }
