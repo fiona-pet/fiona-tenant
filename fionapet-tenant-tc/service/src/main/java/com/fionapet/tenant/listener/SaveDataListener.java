@@ -40,26 +40,28 @@ public class SaveDataListener {
         ArbitrageLog arbitrageLog = new ArbitrageLog(triangleCurrency);
 
 
-        arbitrageLog.setPecentage(triangleCurrency.posCyclePrice());
-        arbitrageLog.setArbitrage(triangleCurrency.posCyclePrice());
-        arbitrageLog.setType(Arbitrage.TYPE_POS);
-        arbitrageLog.setExchangeId(exchange.getId());
+        float arbitrage = triangleCurrency.posCyclePrice();
 
-        saveData(arbitrageLog, triangleCurrency);
+        if (Arbitrage.TYPE_NEG.equals(saveDataEvent.getType())){
+            arbitrage = triangleCurrency.negCyclePrice();
+        }
 
-        ArbitrageLog arbitrageLogNeg = new ArbitrageLog(triangleCurrency);
-        arbitrageLogNeg.setPecentage(triangleCurrency.negCyclePrice());
-        arbitrageLogNeg.setArbitrage(triangleCurrency.negCyclePrice());
-        arbitrageLogNeg.setType(Arbitrage.TYPE_NEG);
-        arbitrageLogNeg.setExchangeId(exchange.getId());
+        arbitrageLogService.save(arbitrageLog);
 
-        saveData(arbitrageLogNeg, triangleCurrency);
+
+        if (arbitrage > 0) {
+
+            arbitrageLog.setPecentage(arbitrage);
+            arbitrageLog.setArbitrage(arbitrage);
+            arbitrageLog.setType(saveDataEvent.getType());
+            arbitrageLog.setExchangeId(exchange.getId());
+
+            saveData(arbitrageLog, triangleCurrency);
+        }
 
     }
 
     private void saveData(ArbitrageLog arbitrageLog, TriangleCurrency triangleCurrency) {
-        arbitrageLogService.save(arbitrageLog);
-
         triangleCurrency.getBaseQuoteOrderBookPrice().setArbitrageLogId(arbitrageLog.getId());
         triangleCurrency.getBaseMidOrderBookPrice().setArbitrageLogId(arbitrageLog.getId());
         triangleCurrency.getQuoteMidOrderBookPrice().setArbitrageLogId(arbitrageLog.getId());

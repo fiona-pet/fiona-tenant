@@ -10,10 +10,12 @@ import org.springframework.context.ApplicationEvent;
 public class SaveDataEvent  extends ApplicationEvent {
     private Exchange exchange;
     private TriangleCurrency triangleCurrency;
+    private String type;
 
-    public SaveDataEvent(Object source, Exchange exchange, TriangleCurrency triangleCurrency) {
+    public SaveDataEvent(Object source, Exchange exchange, TriangleCurrency triangleCurrency, String type) {
         super(source);
         this.exchange = exchange;
         this.triangleCurrency = triangleCurrency;
+        this.type = type;
     }
 }

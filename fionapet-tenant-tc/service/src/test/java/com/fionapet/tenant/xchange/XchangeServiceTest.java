@@ -1,10 +1,14 @@
 package com.fionapet.tenant.xchange;
 
+import com.fionapet.tenant.tc.entity.Exchange;
 import com.fionapet.tenant.tc.entity.OrderBookPrice;
 import com.fionapet.tenant.tc.entity.TopOneOrderBook;
 import com.fionapet.tenant.tc.entity.TriangleCurrency;
+import com.fionapet.tenant.tc.service.ArbitrageService;
+import com.fionapet.tenant.tc.service.ExchangeService;
 import com.fionapet.tenant.tc.service.OrderBookPriceService;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,9 +50,16 @@ public class XchangeServiceTest {
     XchangeService xchangeService;
 
     @Autowired
+    private ExchangeService exchangeService;
+
+    @Autowired
     OrderBookPriceService orderBookPriceService;
 
+    @Autowired
+    ArbitrageService arbitrageService;
+
     String instanceName = "org.knowm.xchange.bitstamp.BitstampExchange";
+
 
     @Before
     public void before() throws Exception {
@@ -118,6 +129,15 @@ public class XchangeServiceTest {
         log.info("balance:{}", balance);
     }
 
+
+    @Test
+    public void testPosOrder() throws InterruptedException {
+        final TriangleCurrency
+                triangleCurrency =
+                orderBookPriceService.getByArbitrageLogId(5240281l);
+        Exchange exchange = exchangeService.getById(1l);
+        arbitrageService.pos(exchange, triangleCurrency);
+    }
 
     @Test
     public void testNegOrder() throws InterruptedException {

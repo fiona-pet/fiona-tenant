@@ -34,4 +34,8 @@ public class ExchangeService {
         return repository.findAllBy();
     }
 
+    public Exchange getById(long id) {
+
+        return repository.findById(id).get();
+    }
 }
