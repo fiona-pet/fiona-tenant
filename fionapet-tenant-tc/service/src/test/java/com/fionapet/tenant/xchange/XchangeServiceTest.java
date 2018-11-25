@@ -48,7 +48,7 @@ public class XchangeServiceTest {
     @Autowired
     OrderBookPriceService orderBookPriceService;
 
-    String instanceName = "org.knowm.xchange.binance.BinanceExchange";
+    String instanceName = "org.knowm.xchange.bitstamp.BitstampExchange";
 
     @Before
     public void before() throws Exception {

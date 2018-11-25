@@ -108,12 +108,7 @@ public class XchangeService {
     }
 
     private Exchange create(String instanceName) {
-        ExchangeSpecification exSpec = new BitstampExchange().getDefaultExchangeSpecification();
-        exSpec.setUserName("rkrh7895");
-        exSpec.setApiKey("P4EaXyAPntmlZyQTSYPZs8jFr7uZRIL9");
-        exSpec.setSecretKey("phjQYI025Na1CAyFxxFtwBtFfLTo0eRF");
-
-        return ExchangeFactory.INSTANCE.createExchange(exSpec);
+        return ExchangeFactory.INSTANCE.createExchange(instanceName);
     }
 
     /**
@@ -130,8 +125,6 @@ public class XchangeService {
         Exchange exchange = create(instanceName);
 
         TradeService tradeService = exchange.getTradeService();
-
-        log.info("account:{}", exchange.getAccountService().getAccountInfo());
 
         // place a limit buy order
         LimitOrder limitOrder =
