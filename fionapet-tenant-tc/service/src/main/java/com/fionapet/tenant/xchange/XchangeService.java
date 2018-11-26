@@ -122,6 +122,8 @@ public class XchangeService {
      */
     public String buy(String instanceName, BigDecimal originalAmount,
                           CurrencyPair currencyPair, BigDecimal limitPrice) throws IOException {
+        log.info("{} do {} => s:{}, p:{}", "buy", currencyPair, originalAmount, limitPrice);
+
         Exchange exchange = create(instanceName);
 
         TradeService tradeService = exchange.getTradeService();
@@ -175,6 +177,8 @@ public class XchangeService {
                               CurrencyPair currencyPair, BigDecimal limitPrice) throws
                                                                                 ExchangeException,
                                                                                 IOException {
+
+        log.info("{} do {} => s:{}, p:{}", "sell", currencyPair, originalAmount, limitPrice);
 
         Exchange exchange = create(instanceName);
 
