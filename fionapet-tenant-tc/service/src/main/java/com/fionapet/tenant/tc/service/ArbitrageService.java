@@ -104,7 +104,7 @@ public class ArbitrageService {
         bmOrderSize =
                 BigDecimal
                         .valueOf(Math.min(maxUsd / bmPrice.floatValue(), bmOrderSize.floatValue()))
-                        .setScale(2, RoundingMode.DOWN);
+                        .setScale(2, RoundingMode.UP);
 
         log.info("p1: {} buy -> p: {}, s: {}, bmOrderSize:{}",
                 triangleCurrency.getBaseMidOrderBookPrice().getCurrencyPair(),
@@ -120,7 +120,7 @@ public class ArbitrageService {
                             ,
                             new CurrencyPair(triangleCurrency.getBaseMidOrderBookPrice()
                                     .getCurrencyPair()),
-                            bmPrice.setScale(2, RoundingMode.DOWN));
+                            bmPrice.setScale(2, RoundingMode.UP));
 
             BigDecimal
                     bqPrice =
@@ -232,7 +232,7 @@ public class ArbitrageService {
                 BitstampOrder
                         bitstampOrder =
                         xchangeService.sell(exchange.getInstanceName(), BigDecimal.valueOf(orderSize)
-                                        .setScale(2, RoundingMode.DOWN), currencyPair,
+                                        .setScale(2, RoundingMode.UP), currencyPair,
                                 BigDecimal.valueOf(price).setScale(2, RoundingMode.UP));
 
                 BitstampOrderStatusResponse bitstampOrderStatusResponse = null;

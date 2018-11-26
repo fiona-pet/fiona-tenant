@@ -113,14 +113,22 @@ public class XchangeServiceTest {
 
     @Test
     public void testSell() throws IOException {
-        BitstampOrder
-                bitstampOrder =
-                xchangeService.sell(instanceName, new BigDecimal(".001"), CurrencyPair.BTC_USD,
-                                    new BigDecimal("6740"));
+        float orderSize = 0.01f;
+        float price = 4000.68f;
 
-        log.info("open orders:{}, order:{}", xchangeService.getOpenOrders(instanceName),
-                 bitstampOrder);
-        log.info(xchangeService.printStopWatch());
+        log.info("orderSize:{}, price:{}", BigDecimal.valueOf(orderSize)
+                .setScale(2, RoundingMode.UP), BigDecimal.valueOf(price).setScale(2, RoundingMode.UP));
+
+//        BitstampOrder
+//                bitstampOrder =
+//                xchangeService.sell(instanceName, BigDecimal.valueOf(orderSize)
+//                                            .setScale(2, RoundingMode.DOWN), CurrencyPair.BTC_EUR,
+//                                    BigDecimal.valueOf(price).setScale(2, RoundingMode.UP));
+//
+//        log.info("open orders:{}, order:{}", xchangeService.getOpenOrders(instanceName),
+//                 bitstampOrder);
+//
+//        log.info(xchangeService.printStopWatch());
     }
 
     @Test
