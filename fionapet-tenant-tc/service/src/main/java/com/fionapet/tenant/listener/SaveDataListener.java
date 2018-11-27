@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@EnableAsync
+//@EnableAsync
 public class SaveDataListener {
 
     @Autowired
@@ -33,7 +33,7 @@ public class SaveDataListener {
     ApplicationContext applicationContext;
 
     @EventListener
-    @Async
+//    @Async
     public void save(SaveDataEvent saveDataEvent) {
         Exchange exchange = saveDataEvent.getExchange();
         TriangleCurrency triangleCurrency = saveDataEvent.getTriangleCurrency();
@@ -45,6 +45,9 @@ public class SaveDataListener {
         if (Arbitrage.TYPE_NEG.equals(saveDataEvent.getType())){
             arbitrage = triangleCurrency.negCyclePrice();
         }
+
+        arbitrageLog.setPecentage(arbitrage);
+        arbitrageLog.setArbitrage(arbitrage);
 
         arbitrageLogService.save(arbitrageLog);
 

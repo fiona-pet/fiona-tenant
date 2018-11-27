@@ -39,40 +39,35 @@ public class PlaceOrderListener {
     ApplicationContext applicationContext;
 
     @EventListener
-    @Async
+//    @Async
     public void placeOrder(PlaceOrderEvent placeOrderEvent) {
         Exchange exchange = placeOrderEvent.getExchange();
         TriangleCurrency triangleCurrency = placeOrderEvent.getTriangleCurrency();
-
-
 
 
         if (triangleCurrency.posCyclePrice() > 0) {
             log.info("POS:{}", "DOING...");
             try {
                 arbitrageService.pos(exchange, triangleCurrency);
-            } catch (InterruptedException e) {
+
+                applicationContext
+                        .publishEvent(new SaveDataEvent(this, exchange, triangleCurrency, Arbitrage.TYPE_POS));      } catch (InterruptedException e) {
                 log.warn("posOrder", e);
             }
             log.info("POS:{}", "DONE");
-
-            applicationContext
-                    .publishEvent(new SaveDataEvent(this, exchange, triangleCurrency, Arbitrage.TYPE_POS));
-
-
         } else if (triangleCurrency.negCyclePrice() > 0) {
             log.info("NEG:{}", "DOING...");
             try {
                 arbitrageService.negOrder(exchange, triangleCurrency);
+
+                applicationContext
+                        .publishEvent(new SaveDataEvent(this, exchange, triangleCurrency, Arbitrage.TYPE_NEG));
             } catch (InterruptedException e) {
                 log.warn("negOrder", e);
             }
             log.info("NEG:{}", "DONE");
-
-            applicationContext
-                    .publishEvent(new SaveDataEvent(this, exchange, triangleCurrency, Arbitrage.TYPE_NEG));
-
         }
+
     }
 
 

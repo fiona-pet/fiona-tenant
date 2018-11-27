@@ -44,9 +44,9 @@ public class ExchangeSymbolsTask {
     ArbitrageLogService arbitrageLogService;
 
 
-//    @Scheduled(cron = "0/500 * * * * * ?") //每5秒执行一次
+    @Scheduled(cron = "0/1 * * * * ?") //每5秒执行一次
 //    @Async
-    @Scheduled(fixedRate = 500)
+//    @Scheduled(fixedRate = 500)
     public void grenCurrencyPair() {
 
         List<Exchange> exchangeList = exchangeService.list();
