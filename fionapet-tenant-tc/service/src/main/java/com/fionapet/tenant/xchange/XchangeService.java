@@ -34,6 +34,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -41,19 +43,19 @@ import java.util.stream.Collectors;
 @Slf4j
 @Setter
 public class XchangeService {
-    StopWatch stopWatch = new StopWatch();
+//    StopWatch stopWatch = new StopWatch();
 
     public String printStopWatch(){
         String res = "";
-        try{
-            res = stopWatch.prettyPrint();
-
-            if (stopWatch.getTaskInfo().length > 10){
-                stopWatch = new StopWatch();
-            }
-        }finally {
-            stopWatch = new StopWatch();
-        }
+//        try{
+//            res = stopWatch.prettyPrint();
+//
+//            if (stopWatch.getTaskInfo().length > 10){
+//                stopWatch = new StopWatch();
+//            }
+//        }finally {
+//            stopWatch = new StopWatch();
+//        }
         return res;
     }
 
@@ -80,16 +82,23 @@ public class XchangeService {
     public OrderBook getOrderBook(String instanceName, CurrencyPair currencyPair) {
         Exchange exchange = ExchangeFactory.INSTANCE.createExchange(instanceName);
 
+
         MarketDataService marketDataService = exchange.getMarketDataService();
 
-        OrderBook orderBook = null;
-        try {
-            stopWatch.start("读取行情");
-            orderBook = marketDataService.getOrderBook(currencyPair);
-            stopWatch.stop();
-        } catch (Exception e) {
-            log.debug("getOrderBook error!", e.getMessage());
-        }
+        StopWatchDo stopWatchDo = new StopWatchDo<MarketDataService, OrderBook>() {
+            @Override
+            OrderBook doing(MarketDataService marketDataService) {
+                try {
+                    return marketDataService.getOrderBook(currencyPair);
+                } catch (IOException e) {
+                    log.debug("getOrderBook error!", e.getMessage());
+                }
+                return null;
+            }
+        };
+
+
+        OrderBook orderBook = (OrderBook) stopWatchDo.watchDo("读取行情", marketDataService);
 
         return orderBook;
     }
@@ -139,9 +148,21 @@ public class XchangeService {
                         limitPrice);
 
 
-        stopWatch.start("下买单");
-        String limitOrderReturnValue = tradeService.placeLimitOrder(limitOrder);
-        stopWatch.stop();
+        StopWatchDo stopWatchDo = new StopWatchDo<TradeService, String>() {
+            @Override
+            String doing(TradeService tradeService) {
+                try {
+                    return tradeService.placeLimitOrder(limitOrder);
+                } catch (IOException e) {
+                    log.debug("getOrderBook error!", e.getMessage());
+                }
+                return null;
+            }
+        };
+
+
+        String limitOrderReturnValue = (String) stopWatchDo.watchDo("下买单", tradeService);
+
 
         log.info("Limit Order return value:{}, object:{}", limitOrderReturnValue, limitOrder);
 
@@ -161,12 +182,25 @@ public class XchangeService {
 
         log.info("account:{}", exchange.getAccountService().getAccountInfo());
 
+
         // place a limit sell order
-        stopWatch.start("下卖单");
-        BitstampOrder order =
-                tradeService.placeBitstampMarketOrder(
-                        currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount);
-        stopWatch.stop();
+        StopWatchDo stopWatchDo = new StopWatchDo<BitstampTradeServiceRaw, BitstampOrder>() {
+            @Override
+            BitstampOrder doing(BitstampTradeServiceRaw tradeService) {
+                try {
+                    return tradeService.placeBitstampMarketOrder(
+                            currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount);
+                } catch (IOException e) {
+                    log.debug("getOrderBook error!", e.getMessage());
+                }
+                return null;
+            }
+        };
+
+
+        BitstampOrder order = (BitstampOrder) stopWatchDo.watchDo("下卖单(市场)", tradeService);
+
+
         log.info("BitstampOrder Order return value:{}", order);
 
         return order;
@@ -188,12 +222,22 @@ public class XchangeService {
         log.info("account:{}", exchange.getAccountService().getAccountInfo());
 
         // place a limit sell order
-        stopWatch.start("下卖单(市场)");
-        BitstampOrder order =
-                tradeService.placeBitstampOrder(
-                        currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount,
-                        limitPrice);
-        stopWatch.stop();
+        StopWatchDo stopWatchDo = new StopWatchDo<BitstampTradeServiceRaw, BitstampOrder>() {
+            @Override
+            BitstampOrder doing(BitstampTradeServiceRaw tradeService) {
+                try {
+                    return tradeService.placeBitstampOrder(
+                            currencyPair, BitstampAuthenticatedV2.Side.sell, originalAmount,
+                            limitPrice);
+                } catch (IOException e) {
+                    log.debug("getOrderBook error!", e.getMessage());
+                }
+                return null;
+            }
+        };
+
+
+        BitstampOrder order = (BitstampOrder) stopWatchDo.watchDo("下卖单", tradeService);
 
         log.info("BitstampOrder Order return value:{}", order);
 
@@ -203,12 +247,23 @@ public class XchangeService {
 
     public boolean cancel(String instanceName, String id) throws IOException {
         Exchange exchange = create(instanceName);
-        stopWatch.start("取消");
+
         BitstampTradeServiceRaw tradeService =
                 (BitstampTradeServiceRaw) exchange.getTradeService();
-        stopWatch.stop();
 
-        return tradeService.cancelBitstampOrder(Long.parseLong(id));
+        StopWatchDo stopWatchDo = new StopWatchDo<BitstampTradeServiceRaw, Boolean>() {
+            @Override
+            Boolean doing(BitstampTradeServiceRaw tradeService) {
+                try {
+                    return tradeService.cancelBitstampOrder(Long.parseLong(id));
+                } catch (IOException e) {
+                    log.debug("getOrderBook error!", e.getMessage());
+                }
+                return false;
+            }
+        };
+
+        return (boolean)stopWatchDo.watchDo("取消单", tradeService);
     }
 
     /**
@@ -222,7 +277,6 @@ public class XchangeService {
         TradeService tradeService = exchange.getTradeService();
 
         OpenOrdersParams openOrdersParamsAll = tradeService.createOpenOrdersParams();
-
 
         OpenOrders openOrders = tradeService.getOpenOrders(openOrdersParamsAll);
 
@@ -241,9 +295,22 @@ public class XchangeService {
 
         BitstampTradeServiceRaw tradeService =
                 (BitstampTradeServiceRaw) exchange.getTradeService();
-        stopWatch.start("查询订单");
-        BitstampOrderStatusResponse openOrders = tradeService.getBitstampOrder(Long.parseLong(id));
-        stopWatch.stop();
+
+
+        StopWatchDo stopWatchDo = new StopWatchDo<BitstampTradeServiceRaw, BitstampOrderStatusResponse>() {
+            @Override
+            BitstampOrderStatusResponse doing(BitstampTradeServiceRaw tradeService) {
+                try {
+                    return tradeService.getBitstampOrder(Long.parseLong(id));
+                } catch (IOException e) {
+                    log.debug("getOrder error!", e.getMessage());
+                }
+                return null;
+            }
+        };
+
+        BitstampOrderStatusResponse openOrders = (BitstampOrderStatusResponse) stopWatchDo.watchDo("查询订单", tradeService);
+
         return openOrders;
     }
 
