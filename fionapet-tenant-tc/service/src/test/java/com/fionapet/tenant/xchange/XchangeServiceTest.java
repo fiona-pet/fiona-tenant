@@ -8,7 +8,6 @@ import com.fionapet.tenant.tc.service.ArbitrageService;
 import com.fionapet.tenant.tc.service.ExchangeService;
 import com.fionapet.tenant.tc.service.OrderBookPriceService;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,9 +19,6 @@ import org.knowm.xchange.bitstamp.dto.trade.BitstampOrderStatus;
 import org.knowm.xchange.bitstamp.dto.trade.BitstampOrderStatusResponse;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
-import org.knowm.xchange.dto.Order;
-import org.knowm.xchange.dto.trade.LimitOrder;
-import org.knowm.xchange.exceptions.ExchangeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -32,7 +28,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * XchangeService Tester.

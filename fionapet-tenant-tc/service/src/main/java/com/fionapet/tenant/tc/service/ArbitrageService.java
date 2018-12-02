@@ -127,7 +127,6 @@ public class ArbitrageService {
                     BigDecimal.valueOf(
                             triangleCurrency.getBaseQuoteOrderBookPrice().getBid().floatValue()
                                     * off);
-
             // p3
             SellThread
                     p3 =
@@ -135,6 +134,21 @@ public class ArbitrageService {
                             new CurrencyPair(triangleCurrency.getBaseQuoteOrderBookPrice()
                                     .getCurrencyPair()));
             p3.start();
+
+            // p2
+            float qmSize = bmOrderSize.floatValue() * bqPrice.floatValue();
+            float
+                    qmPrice =
+                    triangleCurrency.getQuoteMidOrderBookPrice().getBid().floatValue() * off;
+
+            SellThread
+                    p2 =
+                    new SellThread(exchange, "p2", qmSize, qmPrice, bmOrderId, new CurrencyPair(
+                            triangleCurrency.getQuoteMidOrderBookPrice().getCurrencyPair()));
+            p2.start();
+
+            p3.join();
+            p2.join();
         } catch (IOException e) {
             bmOrderResult = e.getMessage();
             log.warn("bm buy error!", e);
@@ -160,36 +174,7 @@ public class ArbitrageService {
             return;
         }
 
-        if (BitstampOrderStatus.Finished == bitstampOrderStatusResponse.getStatus()) {
-            BigDecimal
-                    bqPrice =
-                    BigDecimal.valueOf(
-                            triangleCurrency.getBaseQuoteOrderBookPrice().getBid().floatValue()
-                                    * off);
-
-            // p3
-            SellThread
-                    p3 =
-                    new SellThread(exchange, "p3", bmOrderSize.floatValue(), bqPrice.floatValue(), bmOrderId,
-                            new CurrencyPair(triangleCurrency.getBaseQuoteOrderBookPrice()
-                                    .getCurrencyPair()));
-            p3.start();
-
-            // p2
-            float qmSize = bmOrderSize.floatValue() * bqPrice.floatValue();
-            float
-                    qmPrice =
-                    triangleCurrency.getQuoteMidOrderBookPrice().getBid().floatValue() * off;
-
-            SellThread
-                    p2 =
-                    new SellThread(exchange, "p2", qmSize, qmPrice, bmOrderId, new CurrencyPair(
-                            triangleCurrency.getQuoteMidOrderBookPrice().getCurrencyPair()));
-            p2.start();
-
-            p3.join();
-            p2.join();
-        } else {
+        if (BitstampOrderStatus.Finished != bitstampOrderStatusResponse.getStatus()) {
             try {
                 xchangeService.cancel(exchange.getInstanceName(), bmOrderId);
             } catch (IOException e) {
@@ -198,7 +183,6 @@ public class ArbitrageService {
         }
 
         log.info(xchangeService.printStopWatch());
-
     }
 
 
@@ -251,9 +235,6 @@ public class ArbitrageService {
 
                 if (BitstampOrderStatus.Finished != bitstampOrderStatusResponse.getStatus()) {
                     xchangeService.cancel(exchange.getInstanceName(), bitstampOrder.getId() + "");
-                    xchangeService.sell(exchange.getInstanceName(),
-                            BigDecimal.valueOf(orderSize).setScale(2, RoundingMode.UP),
-                            currencyPair);
                 }
 
                 log.info("{} -> {} sell -> p: {}, orderSize:{}, orderResult:{}", this.getName(),
